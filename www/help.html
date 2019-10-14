@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="css/devlist.css" />
+		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8"/>
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<!--图标框引入-->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css" />
+		<link rel="stylesheet" href="css/climacons-font.css" />
+		<link rel="stylesheet" href="css/glyphicons.css" />
+		<script src="js/mui.js"></script>
+	</head>
+
+	<body style="background: #515151;color: #FFFFFF;">
+		
+		<div id="app">
+			<mu-appbar color="#515151">
+			
+				<mu-row gutter>
+					<mu-col span="3">
+						<div class="grid-cell" @click="setView()">
+								<span> <i class="fa  fa-angle-left"> </i> 返回</span>
+						</div>
+					</mu-col>
+					<mu-col span="6">
+						<div class="grid-cell">帮助说明</div>
+					</mu-col>
+					<mu-col span="3">
+						
+					</mu-col>
+				</mu-row>
+			
+			</mu-appbar>
+		</div>
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+		<script>
+			
+			var app = new Vue({
+				el : '#app',
+				methods:{
+					setView() {
+						window.location.href = 'setting.html';
+					}
+				}
+			});
+			
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: {
+						style:'circle',
+						callback: pulldownRefresh
+					}
+				}
+			});
+			
+			
+			/**
+			 * 下拉刷新具体业务实现
+			 */
+			function pulldownRefresh() {
+				mui.toast("刷新成功");
+				setTimeout(function() {
+					
+					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+					
+				}, 1500);
+				setTimeout(function(){
+					window.location.reload();
+				},500)
+				
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,26 @@
+@import url("https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css");
+.demo-container {
+	font-family: "arial black";
+	font-size: 1rem;
+	margin-top: 2rem;
+}
+.devname{
+	font-size: 1.25rem;
+	color: #929292
+}
+.devid{
+	float: left;
+}
+.item{
+	font-size: 18px;
+}
+.wh-set{
+	margin-top: 10px;
+	text-align: center;
+}
+.devagr{
+	color: #D2322D;
+}
+.grid-cell{
+	font-size: 1rem;
+}
