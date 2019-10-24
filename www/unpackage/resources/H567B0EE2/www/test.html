@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<style>
+	table tr td{
+		width:10px;
+		height:10px;
+		background-color:white;
+	}
+	td.red{
+		background-color:red;
+	}
+	td.black{
+		background-color:#FDF9F2;
+	}
+	</style>
+</head>
+<body bgcolor="black" >
+<canvas id="word"  style="outline:0px solid black;">不支持</canvas>
+<div align="center"  >
+	
+ 
+   <div id="container"></div>
+</div>
+<script>
+ 
+var cav = document.getElementById("word");
+var fontSize = 64;
+ 
+var str ="大家好，我系渣渣辉!";
+cav.width = fontSize*str.length;
+cav.height = fontSize;
+var cxt = cav.getContext("2d");
+cxt.font=fontSize+"px 宋体";
+cxt.textAlign="left";
+cxt.fillStyle = "red";
+cxt.textBaseline="top";
+cxt.fillText(str,0,0);
+var imgdata = cxt.getImageData(0,0,cav.width,cav.height);
+var data = imgdata.data;
+ var pixs = [];
+ for(var i=0;i<imgdata.height;i++){
+	 pixs[i]=[];
+	 for(var j=0;j<imgdata.width;j++){
+		pixs[i][j]=0;
+	}
+ }
+ 
+function loadimg(){
+   for(var i=0;i<imgdata.width*imgdata.height;i++){
+	   var r = parseInt(i/imgdata.width);
+	   var c = i%imgdata.width;
+	   var color = data[4*i+0]*65536 + data[4*i+1]*256 + data[4*i+2];
+	   if(   color >0 ){
+			 pixs[r][c]=1;
+	   }else{
+			pixs[r][c]=0;
+	   }
+    }
+}
+var alltds = [];
+var showwidth = 28;
+function initTable(){
+	var tb = document.createElement("table");
+	for(var i=0;i<fontSize;i++){
+		var tr = document.createElement("tr");
+		alltds[i]=[];
+		for(var j=0;j<showwidth;j++){
+			var td = document.createElement("td");
+			alltds[i][j]= td;
+			tr.appendChild(td);
+		}
+		tb.appendChild(tr);
+	}
+	document.getElementById("container").appendChild(tb);
+}
+ 
+var offset =-showwidth;
+function initWorld(){
+	
+	for(var i=0;i<alltds.length;i++){//行 
+		var tds = alltds[i];
+		var rowdatas = pixs[i];//行数据。
+		for(var j=0;j<tds.length;j++){//列
+			 var td = tds[j];
+			 var value = rowdatas[ j + offset ];
+			  td.className = "black";
+			 if(!value)continue;
+			 
+			 if(value){
+				td.className = "red";
+			 }
+		} 
+	}
+	if( offset == rowdatas.length){
+		offset = -showwidth;
+	} 
+	offset++;
+	setTimeout(arguments.callee,20);
+}
+loadimg();
+initTable();
+initWorld();
+</script>
+</body>
+</html>

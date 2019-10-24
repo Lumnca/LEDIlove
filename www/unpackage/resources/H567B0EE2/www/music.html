@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+
+		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		<link rel="stylesheet" href="css/music.css" />
+		<script src="js/music/filesystem.js"></script>
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<script src="https://unpkg.com/element-ui@2.12.0/lib/index.js"></script>
+		<!--图标框引入-->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css" />
+		<link rel="stylesheet" href="css/climacons-font.css" />
+		<link rel="stylesheet" href="css/glyphicons.css" />
+
+	</head>
+
+	<body style="background: #515151;color: #FFFFFF;">
+		<div id="app">
+			<mu-appbar color="#515151">
+
+				<mu-row gutter>
+					<mu-col span="3">
+						<div class="grid-cell">
+							<span @click="returnSetView()"> <i class="fa fa-angle-left"> </i> 设置 </span>
+						</div>
+					</mu-col>
+					<mu-col span="6">
+						<div class="grid-cell">音乐同步</div>
+					</mu-col>
+					<mu-col span="3">
+						<div class="grid-cell">
+						</div>
+					</mu-col>
+				</mu-row>
+			</mu-appbar>
+			<div class="show1">
+
+			</div>
+			<mu-container>
+				<mu-tabs :value.sync="active" :full-width="true">
+					<mu-tab>内置音乐</mu-tab>
+					<mu-tab>本地音乐</mu-tab>
+				</mu-tabs>
+				<div class="demo-text" v-if="active === 0">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell" v-for="(item,index) in applocalmusic" @click="chose(index,item)">
+							<span v-if="choseindex==index"><i class="fa fa-arrow-circle-right"></i></span>&nbsp;&nbsp;
+							{{index+1}}.{{item}} &nbsp; <span> <i class="fa fa-music"></i></span>
+						</li>
+					</ul>
+				</div>
+				<div class="demo-text" v-if="active === 1">
+					<el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview"
+					 :on-remove="handleRemove" :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed" :file-list="fileList">
+						<el-button size="small" type="primary">点击上传</el-button>
+						<div slot="tip" class="el-upload__tip">只能上传音频文件</div>
+					</el-upload>
+				</div>
+			</mu-container>
+
+
+
+			<div class="musicPlay">
+				<mu-container>
+					<mu-row gutter>
+						<mu-col span="2">
+							<div class="grid-cell">
+								{{musicStart}}
+							</div>
+						</mu-col>
+						<mu-col span="8">
+							<span>
+								<mu-slider class="demo-slider" track-color="#909399" v-model="musicLength.now" :step="1" :max="musicLength.all"></mu-slider>
+							</span>
+						</mu-col>
+						<mu-col span="2">
+							<div class="grid-cell">
+								{{musicEnd}}
+							</div>
+						</mu-col>
+					</mu-row>
+				</mu-container>
+				<mu-container>
+					<mu-row gutter>
+						<mu-col span="6">
+							正在播放：{{playmusic}}
+						</mu-col>
+						<mu-col span="6">
+							下一首： {{nextmusic}}
+						</mu-col>
+					</mu-row>
+					<br>
+					<mu-row gutter>
+						<mu-col span="2">
+						
+						</mu-col>
+						<mu-col span="8">
+							<div>
+								<mu-container class="button-wrapper">
+									
+								  <mu-button fab  color="primary" @click="frontEndPlay(0)">
+								       <span><i class="fa fa-backward"></i></span>
+								  </mu-button>
+								  
+								  <mu-button fab color="indigo" onclick="stopPlay()" >
+								       <span><i v-bind:class="ispaused"></i></span>
+								  </mu-button>
+								  							
+								  <mu-button fab color="primary"  @click="frontEndPlay(1)">
+								      <span><i class="fa fa-forward"></i></span>
+								  </mu-button>
+								<mu-container>
+							</div>
+						</mu-col>
+						<mu-col span="2">
+						
+						</mu-col>
+					</mu-row>
+
+
+				</mu-container>
+			</div>
+
+		</div>
+
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+		<script src="js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init()
+			var app = new Vue({
+				el: '#app',
+				data: {
+					active: 0,
+					applocalmusic: [],
+					fileList: [],
+					openSimple: false,
+					choseindex: 0,
+					linear: 10,
+					isPlay : false,
+					ispaused : 'fa  fa-pause',
+					musicLength: {
+						all: 0,
+						now: 0
+					},
+					playmusic: '',
+					nextmusic : ''
+				},
+				computed: {
+					musicStart: function() {
+						var m = Math.floor(this.musicLength.now / 60);
+						var s = Math.floor(this.musicLength.now % 60);
+						if (s < 10) {
+							return m + ":0" + s;
+						} else {
+							return m + ":" + s;
+						}
+					},
+					musicEnd: function() {
+						var m = Math.floor(this.musicLength.all / 60);
+						var s = Math.floor(this.musicLength.all % 60);
+						if (s < 10) {
+							return m + ":0" + s;
+						} else {
+							return m + ":" + s;
+						}
+					}
+				},
+				methods: {
+					chose(index, item) {
+						this.choseindex = index;
+						console.log(item);
+						this.playmusic = item;
+						if(index+1<this.applocalmusic.length){
+							this.nextmusic = this.applocalmusic[index+1];
+						}
+						startPlay("_www/audio/" + item);
+						
+					},
+					frontEndPlay(index){
+						if(index == 0 && this.choseindex > 0){
+							startPlay("_www/audio/" + this.applocalmusic[this.choseindex-1]);
+							this.choseindex -= 1;
+							this.playmusic = this.applocalmusic[this.choseindex];
+						}
+						else if(index == 1 && this.choseindex < this.applocalmusic.length - 1){
+							startPlay("_www/audio/" + this.applocalmusic[this.choseindex+1]);
+							this.choseindex += 1;
+							this.playmusic = this.applocalmusic[this.choseindex];
+						}
+					},
+					returnSetView() {
+						window.location.href = 'setting.html';
+					},
+					handleRemove(file, fileList) {
+						//console.log(file, fileList);
+					},
+					//上传时操作
+					handlePreview(file) {
+						console.log(file);
+
+					},
+					handleExceed(files, fileList) {
+						this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+					},
+					beforeRemove(file, fileList) {
+						return this.$notify({
+							title: '已取消上传文件',
+							message: '',
+							position: 'top-left'
+						});
+					},
+					openSimpleDialog() {
+						this.openSimple = true;
+					},
+					closeSimpleDialog() {
+						this.openSimple = false;
+					}
+				}
+			})
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: {
+						style:'circle',
+						callback: pulldownRefresh
+					}
+				}
+			});
+			
+			
+			/**
+			 * 下拉刷新具体业务实现
+			 */
+			function pulldownRefresh() {
+				mui.toast("刷新成功");
+				setTimeout(function() {
+					
+					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+					
+				}, 1500);
+				setTimeout(function(){
+					window.location.reload();
+				},500)
+				
+			}
+		</script>
+	</body>
+
+</html>

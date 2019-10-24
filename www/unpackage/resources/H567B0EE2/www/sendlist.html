@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="css/devlist.css" />
+		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<!--图标框引入-->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css" />
+		<link rel="stylesheet" href="css/climacons-font.css" />
+		<link rel="stylesheet" href="css/glyphicons.css" />
+		<script src="js/mui.js"></script>
+	</head>
+
+	<body style="background: #F2F2F2;color: #FFFFFF;">
+
+		<div id="app">
+			<mu-appbar color="#515151">
+
+				<mu-row gutter>
+					<mu-col span="3">
+						<div class="grid-cell" @click="setView()">
+							<span> <i class="fa  fa-angle-left"> </i> 返回</span>
+						</div>
+					</mu-col>
+					<mu-col span="6">
+						<div class="grid-cell">发送列表</div>
+					</mu-col>
+					<mu-col span="3">
+						<div class="grid-cell">
+
+						</div>
+					</mu-col>
+				</mu-row>
+
+			</mu-appbar>
+			<mu-container>
+				<mu-row gutter>
+					<mu-col span="12" lg="4" sm="6">
+						<mu-select label="发送选项" multiple chips v-model="choselist" full-width >
+							<mu-option v-for="city,index in messagelist" :key="city" :label="city" :value="city"></mu-option>
+						</mu-select>
+					</mu-col>
+				</mu-row>
+			</mu-container>
+			
+			 <div>
+				<mu-container class="button-wrapper">
+				  <mu-button large ripple full-width color="primary" round="true" @click="send()" :disabled="ischose">发送</mu-button>
+				<mu-container> 
+			 </div>
+		</div>
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+		<script>
+			var app = new Vue({
+				el: '#app',
+				data: {
+					messagelist: [
+						'MESSAGE1','MESSAGE2','MESSAGE3','MESSAGE4',
+						'MESSAGE5','MESSAGE6','MESSAGE7','MESSAGE8',
+					],
+					choselist : []
+					
+				},
+				computed:{
+					ischose : function(){
+						if(this.choselist.length==0){
+							return true;
+						}
+						else{
+							return false;
+						}
+					}
+				},
+				methods:{
+					send(){
+						mui.toast("提交成功！");
+					},
+					setView() {
+						window.location.href = 'setting.html';
+					}
+				}
+			});
+			
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: {
+						style:'circle',
+						callback: pulldownRefresh
+					}
+				}
+			});
+			
+			
+			/**
+			 * 下拉刷新具体业务实现
+			 */
+			function pulldownRefresh() {
+				mui.toast("刷新成功");
+				setTimeout(function() {
+					
+					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+					
+				}, 1500);
+				setTimeout(function(){
+					window.location.reload();
+				},500)
+				
+			}
+		</script>
+	</body>
+</html>

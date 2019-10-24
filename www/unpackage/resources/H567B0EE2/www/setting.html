@@ -1,0 +1,220 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="css/devlist.css" />
+		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<!--图标框引入-->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css" />
+		<link rel="stylesheet" href="css/climacons-font.css" />
+		<link rel="stylesheet" href="css/glyphicons.css" />
+		<script src="js/mui.js"></script>
+		<script src="js/update.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body style="background: #515151;color: #FFFFFF;">
+
+		<div id="app">
+
+			<mu-paper :z-depth="1" class="demo-list-wrap">
+				<mu-appbar color="#515151">
+
+					<mu-row gutter>
+						<mu-col span="3">
+							<div class="grid-cell"  @click="indexView()">
+								<span> <i class="fa   fa-angle-left"> </i> 返回 </span>
+							</div>
+						</mu-col>
+						<mu-col span="6">
+							<div class="grid-cell">设置</div>
+						</mu-col>
+						<mu-col span="3">
+							<div class="grid-cell">
+							</div>
+						</mu-col>
+					</mu-row>
+				</mu-appbar>
+
+				<mu-list textline="two-line">
+
+					<mu-expansion-panel :expand="panel === 'panel1'" @change="toggle('panel1')">
+						<div slot="header" class="item"><span><i class="fa fa-wrench"></i> 设置设备参数</span></div>
+
+						<mu-container class="demo-container">
+							<div class="wh-set">
+								<mu-row gutter>
+									<mu-col span="6">
+										<div class="grid-cell devagr">12xN</div>
+									</mu-col>
+									<mu-col span="6">
+										<div class="grid-cell">16xN</div>
+									</mu-col>
+								</mu-row>
+							</div>
+							<div class="wh-set">
+								<mu-row gutter>
+									<mu-col span="6">
+										<div class="grid-cell">32x32</div>
+									</mu-col>
+									<mu-col span="6">
+										<div class="grid-cell">40x48</div>
+									</mu-col>
+								</mu-row>
+							</div>
+							<div class="wh-set">
+								<mu-row gutter>
+									<mu-col span="6">
+										<div class="grid-cell">24x24</div>
+									</mu-col>
+									<mu-col span="6">
+										<div class="grid-cell"></div>
+									</mu-col>
+								</mu-row>
+							</div>
+
+						</mu-container>
+
+					</mu-expansion-panel>
+
+
+					<mu-expansion-panel :expand="panel === 'panel2'" @change="toggle('panel2')">
+						<div slot="header" class="item"><span><i class="fa fa-tachometer"></i> 设置速度</span></div>
+						<mu-container>
+							<mu-slider class="demo-slider" v-model="value1" :min="0" :max="10" :step="1"></mu-slider>
+						</mu-container>
+					</mu-expansion-panel>
+
+
+
+
+					<mu-expansion-panel :expand="panel === 'panel3'" @change="toggle('panel3')">
+						<div slot="header" class="item"><span><i class="fa fa-certificate"></i> 设置亮度</span></div>
+						<mu-container>
+							<mu-slider class="demo-slider" v-model="value2" :min="0" :max="10" :step="1"></mu-slider>
+						</mu-container>
+					</mu-expansion-panel>
+
+
+
+					<mu-expansion-panel :expand="panel === 'panel4'" onclick=" clicked('mobile.html','手绘面板')">
+						<div slot="header" class="item"><span><i class="fa fa-magic"></i> 手绘面板</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+					
+					<mu-expansion-panel :expand="panel === 'panel5'" @change="jumpView('music.html')">
+						<div slot="header" class="item"><span><i class="fa  fa-music"></i> 音乐同步</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+					
+					<mu-expansion-panel :expand="panel === 'panel6'" @change="jumpView('devname.html')">
+						<div slot="header" class="item"><span><i class="fa fa-pencil"></i> 设置设备名称</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+					
+					<mu-expansion-panel :expand="panel === 'panel7'" @change="jumpView('sendlist.html')">
+						<div slot="header" class="item"><span><i class="fa fa-list-ul"></i> 发送列表</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+
+					<mu-expansion-panel :expand="panel === 'panel8'" @change="jumpView('appupdate.html')">
+						<div slot="header" class="item"><span><i class="fa fa-thumb-tack"></i> 检查更新</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+					
+					<mu-expansion-panel :expand="panel === 'panel9'" @change="jumpView('appabout.html')">
+						<div slot="header" class="item"><span><i class="fa  fa-info"></i> 关于APP</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+					
+					<mu-expansion-panel :expand="panel === 'panel10'" @change="jumpView('help.html')">
+						<div slot="header" class="item"><span><i class="fa  fa-question"></i> 帮助说明</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+					
+					<mu-expansion-panel :expand="panel === 'panel11'" @change="jumpView('ledchose.html')">
+						<div slot="header" class="item"><span><i class="fa  fa-search"></i> LED灯检测</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+				</mu-list>
+			</mu-paper>
+		</div>
+
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+		<script type="text/javascript" src="js/default.js" ></script>
+		<script>
+			var app = new Vue({
+				el: '#app',
+				data: {
+					panel: '',
+					value1: 1,
+					value2: 1,
+					open: 'send',
+				},
+				methods: {
+					toggle(panel) {
+						this.panel = panel === this.panel ? '' : panel;
+					},
+					jumpView(view) {
+						window.location.href = view;
+					},
+					indexView() {
+						window.location.href = 'main.html';
+					}
+				}
+			})
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: {
+						style:'circle',
+						callback: pulldownRefresh
+					}
+				}
+			});
+			
+			
+			/**
+			 * 下拉刷新具体业务实现
+			 */
+			function pulldownRefresh() {
+				mui.toast("刷新成功");
+				setTimeout(function() {
+					
+					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+					
+				}, 1500);
+				setTimeout(function(){
+					window.location.reload();
+				},500)
+				
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,49 @@
+@import url("https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css");
+.show1{
+	background: #000000;
+	height: 5.625rem;
+	margin: 8px 4px;
+	border:1px solid #E0E2E4;
+	border-radius: 10px;
+}
+.demo-text {
+  padding: 16px;
+  background: #fff;
+  color: #000000;
+  p,div,span,img {
+    margin: 8px 0;
+  }
+}
+.fitem {
+	width: 96%;
+	overflow: hidden;
+	padding: 10px 2%;
+	border-bottom: 1px solid #c6c6c6;
+	text-align: left;
+}
+.fitem:active {
+	background: #f4f4f4;
+}
+.ficon {
+	height: 40px;
+	float: left;
+	margin-right: 8px;
+}
+.fup {
+	line-height:40px;
+}
+.fname {
+	font-weight: bolder;
+	height: 22px;
+	font-size: 16px;
+}
+.finf {
+	height: 18px;
+	font-size: 12px;
+}
+.mui-table-view-cell{
+	text-align: left;
+}
+.musicPlay{
+	margin-top: 2.5rem;
+}
