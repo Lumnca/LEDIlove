@@ -10,7 +10,7 @@
 		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 		<script type="text/javascript" src="js/update.js"></script>
 		<link rel="stylesheet" href="css/main.css" />
-		<script src="js/main/dight.js"></script>
+
 		<!--Muse-UI框架引入-->
 		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
 		<script src="https://unpkg.com/vue/dist/vue.js"></script>
@@ -46,8 +46,8 @@
 				</mu-row>
 
 			</mu-appbar>
-			<div class="input1" id="dight">
-					
+			<div class="input1">
+				<canvas id="dight" width="4000px" style="overflow: scroll;"></canvas>
 			</div>
 
 			<mu-container>
@@ -60,52 +60,55 @@
 						<mu-row gutter>
 							<mu-col span="6" lg="6" sm="6">
 								<mu-select label="大小" v-model="fontSize" style="color: #FFFFFF;" full-width>
-									<mu-option v-for="option,index in fontSizeOptions" :key="option" :label="option.toString()" :value="option" ></mu-option>
+									<mu-option v-for="option,index in fontSizeOptions" :key="option" :label="option.toString()" :value="option"></mu-option>
 								</mu-select>
 							</mu-col>
 							<mu-col span="6" lg="6" sm="6">
 								<mu-select label="字体" v-model="fontStyle" style="color: #FFFFFF;" full-width>
-									<mu-option v-for="option,index in fontStyleOptions" :key="option" :label="option" :value="option" ></mu-option>
+									<mu-option v-for="option,index in fontStyleOptions" :key="option" :label="option" :value="option"></mu-option>
 								</mu-select>
 							</mu-col>
 						</mu-row>
 					</mu-container>
 					<mu-container>
 
-					
+
 						<mu-row gutter>
 							<mu-col span="6" lg="6" sm="6">
 								<mu-select label="字符" v-model="inputLength" style="color: #FFFFFF;" disabled full-width>
-									
+
 								</mu-select>
 							</mu-col>
 							<mu-col span="6" lg="6" sm="6">
 								<mu-select label="特效" v-model="effect" style="color: #FFFFFF;" full-width>
-									<mu-option v-for="option,index in effectOptions" :key="option" :label="option" :value="option" ></mu-option>
+									<mu-option v-for="option,index in effectOptions" :key="option" :label="option" :value="option"></mu-option>
 								</mu-select>
 							</mu-col>
 						</mu-row>
-					
+
 					</mu-container>
 				</div>
-				
+
 				<div class="demo-text" v-if="active === 1">
 					<div style="padding: 20px 10px;">
-						预览&nbsp; &nbsp; <span v-bind:style="{'background-color':color.background}"><i v-bind:style="{'color':color.font}">LED</i></span>&nbsp; &nbsp; 
-						<span>字体色：&nbsp; </span><el-color-picker v-model="color.font" size="mini"></el-color-picker> &nbsp;
-						<span>背景色：&nbsp; </span><el-color-picker v-model="color.background" size="mini"></el-color-picker> &nbsp;
+						预览&nbsp; &nbsp; <span v-bind:style="{'background-color':color.background}"><i v-bind:style="{'color':color.font}">LED</i></span>&nbsp;
+						&nbsp;
+						<span>字体色：&nbsp; </span>
+						<el-color-picker v-model="color.font" size="mini"></el-color-picker> &nbsp;
+						<span>背景色：&nbsp; </span>
+						<el-color-picker v-model="color.background" size="mini"></el-color-picker> &nbsp;
 					</div>
 				</div>
 			</mu-container>
-			
+
 			<mu-container>
-				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100">
-				    <mu-form-item prop="input" color="#FFFFFF">
-				      <mu-text-field v-model="sendInfo" style="color: #FF0000;"></mu-text-field>
-				    </mu-form-item>
-				  </mu-form>
+				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " :rules="updateInfo" auto-validate>
+					<mu-form-item prop="input" color="#FFFFFF">
+						<mu-text-field v-model="sendInfo" style="color: #FF0000;"></mu-text-field>
+					</mu-form-item>
+				</mu-form>
 			</mu-container>
-			
+
 			<div class="key">
 				<span>页面特效以及模式选择</span>
 				<mu-container class="button-wrapper">
@@ -133,7 +136,7 @@
 						<el-button type="warning" size="mini" style="min-width: 60px;">闪烁</el-button>
 						<el-button type="warning" size="mini" style="min-width: 60px;">跑马灯</el-button>
 					</el-row>
-				<mu-container>
+					<mu-container>
 			</div>
 			<a href="test.html">-------</a>
 		</div>
@@ -142,22 +145,22 @@
 			var app = new Vue({
 				el: '#app',
 				data: {
-					sendInfo : '',
+					sendInfo: 'MESSAGE1',
 					active: 0,
-					fontSize: '',
-					fontStyle: '',
-					charLength : '0/50',
-					effect : '',
-					custom : '',
-					effectOptions : ['无','镜像','旋转90°','旋转180°','旋转270°','旋转360°'],
+					fontSize: 16,
+					fontStyle: '宋体',
+					charLength: '0/50',
+					effect: '',
+					custom: '',
+					effectOptions: ['无', '镜像', '旋转90°', '旋转180°', '旋转270°', '旋转360°'],
 					fontSizeOptions: [12, 14, 16],
 					fontStyleOptions: ['宋体', '雅黑', 'Arial', 'New Roman', 'Verdana'],
 					form: {
-					        input: ''
+						input: ''
 					},
 					color: {
 						font: '#FFFFFF',
-						background : '#000000'
+						background: '#000000'
 					}
 				},
 				methods: {
@@ -166,10 +169,22 @@
 					},
 					devlistView() {
 						window.location.href = "devlist.html";
+					},
+					drawText(font, size, color) {
+						var oText = document.getElementById("dight");
+						var oContext = oText.getContext("2d");
+						oContext.clearRect(0,0,oText.width,oText.height);  
+						oContext.font = size * 6 + "px Microsoft JhengHei"; //设置文本大小 + 字体
+						oContext.fillStyle = color; //设置文本颜色
+						oContext.fillText(font, 0, 84);
+					},
+					updateInfo(){
+						
 					}
 				},
-				computed:{
-					inputLength : function(){
+				computed: {
+					inputLength: function() {
+						this.drawText(this.sendInfo,this.fontSize,'tomato');
 						return this.sendInfo.length + "/50";
 					}
 				}
@@ -201,5 +216,6 @@
 
 			}
 		</script>
+		<script src="js/main/dight.js"></script>
 	</body>
 </html>
