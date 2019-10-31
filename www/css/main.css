@@ -40,3 +40,11 @@ canvas {
 	padding: -2px;
 	margin: -1px;
 }
+
+.tran90{
+	-moz-transform:rotate(-180deg);
+	-webkit-transform:rotate(-180deg);
+	-o-transform:rotate(-180deg);
+	-ms-transform:rotate(-180deg);
+	transform:rotate(-180deg);
+}

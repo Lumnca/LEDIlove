@@ -102,7 +102,8 @@
 			</mu-container>
 
 			<mu-container>
-				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " :rules="updateInfo" auto-validate>
+				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " :rules="updateInfo"
+				 auto-validate>
 					<mu-form-item prop="input" color="#FFFFFF">
 						<mu-text-field v-model="sendInfo" style="color: #FF0000;"></mu-text-field>
 					</mu-form-item>
@@ -138,7 +139,17 @@
 					</el-row>
 					<mu-container>
 			</div>
-			<a href="test.html">-------</a>
+			<mu-container class="button-wrapper">
+				<mu-row gutter>
+					<mu-col span=""></mu-col>
+					<mu-col span="10">
+						<el-row>
+							<mu-button color="primary" full-width>发送命令</mu-button>
+						</el-row>
+					</mu-col>
+					<mu-col span="1"></mu-col>
+				</mu-row>
+			<mu-container>
 		</div>
 		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
 		<script>
@@ -173,18 +184,18 @@
 					drawText(font, size, color) {
 						var oText = document.getElementById("dight");
 						var oContext = oText.getContext("2d");
-						oContext.clearRect(0,0,oText.width,oText.height);  
+						oContext.clearRect(0, 0, oText.width, oText.height);
 						oContext.font = size * 6 + "px Microsoft JhengHei"; //设置文本大小 + 字体
 						oContext.fillStyle = color; //设置文本颜色
 						oContext.fillText(font, 0, 84);
 					},
-					updateInfo(){
-						
+					updateInfo() {
+
 					}
 				},
 				computed: {
 					inputLength: function() {
-						this.drawText(this.sendInfo,this.fontSize,'tomato');
+						this.drawText(this.sendInfo, this.fontSize, 'tomato');
 						return this.sendInfo.length + "/50";
 					}
 				}

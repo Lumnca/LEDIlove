@@ -1,107 +1,357 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
-<head>
-	<meta charset="UTF-8"/>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+		<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	</head>
 	<style>
-	table tr td{
-		width:10px;
-		height:10px;
-		background-color:white;
-	}
-	td.red{
-		background-color:red;
-	}
-	td.black{
-		background-color:#FDF9F2;
-	}
-	</style>
-</head>
-<body bgcolor="black" >
-<canvas id="word"  style="outline:0px solid black;">不支持</canvas>
-<div align="center"  >
-	
- 
-   <div id="container"></div>
-</div>
-<script>
- 
-var cav = document.getElementById("word");
-var fontSize = 64;
- 
-var str ="大家好，我系渣渣辉!";
-cav.width = fontSize*str.length;
-cav.height = fontSize;
-var cxt = cav.getContext("2d");
-cxt.font=fontSize+"px 宋体";
-cxt.textAlign="left";
-cxt.fillStyle = "red";
-cxt.textBaseline="top";
-cxt.fillText(str,0,0);
-var imgdata = cxt.getImageData(0,0,cav.width,cav.height);
-var data = imgdata.data;
- var pixs = [];
- for(var i=0;i<imgdata.height;i++){
-	 pixs[i]=[];
-	 for(var j=0;j<imgdata.width;j++){
-		pixs[i][j]=0;
-	}
- }
- 
-function loadimg(){
-   for(var i=0;i<imgdata.width*imgdata.height;i++){
-	   var r = parseInt(i/imgdata.width);
-	   var c = i%imgdata.width;
-	   var color = data[4*i+0]*65536 + data[4*i+1]*256 + data[4*i+2];
-	   if(   color >0 ){
-			 pixs[r][c]=1;
-	   }else{
-			pixs[r][c]=0;
-	   }
-    }
-}
-var alltds = [];
-var showwidth = 28;
-function initTable(){
-	var tb = document.createElement("table");
-	for(var i=0;i<fontSize;i++){
-		var tr = document.createElement("tr");
-		alltds[i]=[];
-		for(var j=0;j<showwidth;j++){
-			var td = document.createElement("td");
-			alltds[i][j]= td;
-			tr.appendChild(td);
+		.col-md-4{
+			border: 1px  solid #00ACED;
+			padding: 10px 20px;
 		}
-		tb.appendChild(tr);
-	}
-	document.getElementById("container").appendChild(tb);
-}
- 
-var offset =-showwidth;
-function initWorld(){
+	</style>
+	<body>
+
+		<div class="container">
+		   <div class="row">
+			  <div class="col-md-4">
+				  <span>点阵 </span> 当前颜色阈值：<span id="filter"></span>
+				  <div style="width: 320px;height: 320px;">
+					
+				  	<canvas id="show" width="320px" height="320"></canvas>
+				  </div>
+			  </div>
+			  <div class="col-md-4">
+				  <span>图片</span>
+				  <div id="result" name="result" style="  width: 320px;height: 320px;"></div>
+			  </div>
+			  <div class="col-md-4">
+				  <span>数据</span>
+			  		<div id="data"  name="result" style="overflow-y: scroll; width: 320px;height: 320px; ">
+			  		
+			  		</div>		  
+			  </div>
+		   </div>
+		</div>
+		
+		
+		<br>
+		<div id="tbody">
+			<div>
+				<label>颜色过滤阈值：</label>
+				<input type="text" value="140" id="f"/><br>
+				<label>请选择一个图片文件：</label><br /><br />
+				<input type="file" id="file" class=" btn btn-default" style="height: 50px; width: 300px;text-align-last: 0;" />
+			</div>
+			<br>
+			<div>
+				<button class="btn btn-primary" value="读取图像" onclick="readAsDataURL()">显示图像</button>
+				<button class="btn btn-primary" onclick="drawImg(document.getElementsByTagName('img')[0])">生成点阵</button>
+				<button class="btn btn-primary" onclick="getData(1)">生成数据(RGB)</button>
+				<button class="btn btn-primary" onclick="getData(2)">生成数据(2位16进制)</button>
+			</div>
+		</div>
+		
+		<script>
+			var result = document.getElementById("result");
+			var file = document.getElementById("file");
+
+			//判断浏览器是否支持FileReader接口  
+			if (typeof FileReader == 'undefined') {
+				result.InnerHTML = "<p>你的浏览器不支持FileReader接口！</p>";
+				//使选择控件不可操作  
+				file.setAttribute("disabled", "disabled"); //使得之前操作失效，重新启动
+			}
+
+			function readAsDataURL() {
+				//检验是否为图像文件  
+				var file = document.getElementById("file").files[0];
+				if (!/image\/\w+/.test(file.type)) {
+					alert("这不是图片文件！请检查！");
+					return false;
+				}
+				var reader = new FileReader();
+				//将文件以Data URL形式读入页面  
+				reader.readAsDataURL(file);
+				reader.onload = function(e) {
+					var result = document.getElementById("result");
+					//显示文件  
+					result.innerHTML = '<img src="' + this.result + '" alt="" width=300 height=300/>';
+				}
+			}
+			
+			var rgbaData = [];
+			var RGBNumber = [0, 0, 0, 0, 0, 0, 0]; //R,G,B,RG,RB,GB,RGB
+			var ColorOxData = [];
+			var  filter = 140;
+			function getData(type){
+				
+				var dataResult = document.getElementById('data');
+				var data = '';
+				
+				if(type==1){
+					for (let i = 0; i < rgbaData.length/4; i++) {
+						data+= "("+rgbaData[i][0]+","+rgbaData[i][1]+","+rgbaData[i][2]+")";
+					}
+				}
+				else{
+					for (let i = 0; i < ColorOxData.length; i++) {
+						data+="0x"+parseInt(ColorOxData[i],2).toString(16)+",";
+					}
+				}
+				
+				dataResult.innerHTML = data;
+			}
+			function drawImg(img) {
+				filter = document.getElementById('f').value;
+				var height = 64;
+
+				var width = 64;
+
+				var canvas = document.createElement('canvas');
+
+				var ctx = canvas.getContext('2d');
+
+
+				canvas.width = 32;
+
+				canvas.height = 32;
+
+				ctx.drawImage(img, 0, 0, 32, 32);
+
+				document.getElementById('show').appendChild(canvas);
+
+				console.log(ctx.drawImage(img, 0, 0, canvas.width, canvas.height));
+
+				var datas = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+				console.log(datas.length);
+
+				/*
+				*
+				* 0x 11111111
+				*/
+			
+				for (let i = 0; i < datas.length / 4; i++) {
+					rgbaData[i] = new Array();
+					let Ox = 0;
+					
+					let r = datas[i * 4] < filter ? 0 : 255;
+					
+					rgbaData[i].push(r);
+					let g = datas[i * 4 + 1] < filter ? 0 : 255;
+
+					rgbaData[i].push(g);
+					let b = datas[i * 4 + 2] < filter ? 0 : 255;
 	
-	for(var i=0;i<alltds.length;i++){//行 
-		var tds = alltds[i];
-		var rowdatas = pixs[i];//行数据。
-		for(var j=0;j<tds.length;j++){//列
-			 var td = tds[j];
-			 var value = rowdatas[ j + offset ];
-			  td.className = "black";
-			 if(!value)continue;
-			 
-			 if(value){
-				td.className = "red";
-			 }
-		} 
-	}
-	if( offset == rowdatas.length){
-		offset = -showwidth;
-	} 
-	offset++;
-	setTimeout(arguments.callee,20);
-}
-loadimg();
-initTable();
-initWorld();
-</script>
-</body>
+					rgbaData[i].push(b)
+					let a = datas[i * 4 + 3];
+					rgbaData[i].push(a);	
+					//R,G,B,RG,RB,GB,RGB
+					if (r == 255 && g == 255 && b == 255) {
+						Ox = '11111111';
+					} else if (r == 0 && g == 255 && b == 255) {
+						Ox = '00011111';
+					} else if (r == 255 && g == 0 && b == 255) {
+						Ox = '11100011';
+					} else if (r == 255 && g == 255 && b == 0) {
+						Ox = '11111100';
+					} else if (r == 0 && g == 0 && b == 255) {
+						Ox = '00000011';
+					} else if (r == 0 && g == 255 && b == 0) {
+						Ox = '00011100';
+					} else if (r == 255 && g == 0 && b == 0) {
+						Ox = '11100000';
+					}
+					else{
+						Ox = '00000000';
+					}
+					ColorOxData.push(Ox);
+				}
+
+				for (let i = 0; i < rgbaData.length; i++) {
+					console.log(rgbaData[i][0] + "," + rgbaData[i][1] + "," + rgbaData[i][2] + "," + rgbaData[i][3]);
+				}
+				document.getElementById('filter').innerHTML = filter;
+				let maxIndex = 0;
+				let maxNumber = 0;
+				
+				RGBNumber.map(function(item, index) {
+					if (item >= maxNumber) {
+						maxNumber = item;
+						maxIndex = index;
+					}
+				})
+				filter = document.getElementById('f').value;
+
+				console.log("Sum:" + maxNumber + " Type:" + maxIndex);
+
+				var show = document.getElementById("show");
+
+				var ctx2 = show.getContext('2d');
+
+
+
+				for (let i = 0; i < 32; i++) {
+					for (let j = 0; j < 32; j++) {
+
+						let r = rgbaData[i * 32 + j][0];
+						let g = rgbaData[i * 32 + j][1];
+						let b = rgbaData[i * 32 + j][2];
+						let a = rgbaData[i * 32 + j][3];
+
+						ctx2.beginPath();
+						ctx2.arc(8 * (j + 1), 8 * (i + 1), 4, 0, 2 * Math.PI, false);
+
+
+
+						if (RGBNumber[toRGB(r, g, b)] <= 30) {
+							ctx2.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+							//ctx2.fillStyle = "rgba("+defaultRGB(maxIndex)[0]+","+defaultRGB(maxIndex)[1]+","+defaultRGB(maxIndex)[2]+","+a+")";
+						} else {
+							ctx2.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+						}
+
+
+
+						//console.log("rgba("+r+","+g+","+b+","+a+")");
+						ctx2.fill();
+					}
+				}
+			}
+			//R,G,B,RG,RB,GB,RGB
+			function toRGB(r, g, b) {
+				let type = 6;
+				if (r == 255 && g == 255 && b == 255) {
+					type = 6;
+				} else if (r == 0 && g == 255 && b == 255) {
+					type = 5;
+				} else if (r == 255 && g == 0 && b == 255) {
+					type = 4;
+				} else if (r == 255 && g == 255 && b == 0) {
+					type = 3;
+				} else if (r == 0 && g == 0 && b == 255) {
+					type = 2;
+				} else if (r == 0 && g == 255 && b == 0) {
+					type = 1;
+				} else if (r == 255 && g == 0 && b == 0) {
+					type = 0;
+				}
+				return type;
+			}
+			//R,G,B,RG,RB,GB,RGB
+			function defaultRGB(type) {
+				let rgb;
+
+				if (type == 0) {
+					rgb = [255, 0, 0];
+				} else if (type == 1) {
+					rgb = [0, 255, 0];
+				} else if (type == 2) {
+					rgb = [0, 0, 255];
+				} else if (type == 3) {
+					rgb = [255, 255, 0];
+				} else if (type == 4) {
+					rgb = [255, 0, 255];
+				} else if (type == 5) {
+					rgb = [0, 255, 255];
+				} else if (type == 6) {
+					rgb = [255, 255, 255];
+				}
+				return rgb;
+			}
+
+			function drawFont(font) {
+				var height = 16;
+				var width = 16;
+
+				var canvas = document.createElement('canvas');
+
+				var ctx = canvas.getContext('2d');
+
+				var txt = font;
+
+				canvas.width = width * txt.length;
+
+				canvas.height = height;
+
+				ctx.font = "16px SimSun";
+
+				ctx.fillStyle = "#000000";
+
+				ctx.fillText(txt, 0, 14);
+
+				var datas = ctx.getImageData(0, 0, width * txt.length, height).data;
+
+				console.log(datas.length);
+
+				//GBAR数据组
+				var rgbaData = [];
+
+				for (let i = 0; i < datas.length / 4; i++) {
+					rgbaData[i] = new Array();
+					let r = datas[i * 4];
+					rgbaData[i].push(r);
+					let g = datas[i * 4 + 1];
+					rgbaData[i].push(g);
+					let b = datas[i * 4 + 2];
+					rgbaData[i].push(b)
+					let a = datas[i * 4 + 3];
+					rgbaData[i].push(a);
+				}
+				console.log(rgbaData);
+				for (let i = 0; i < rgbaData.length; i++) {
+					console.log(rgbaData[i][0] + "," + rgbaData[i][1] + "," + rgbaData[i][2] + "," + rgbaData[i][3]);
+				}
+
+				var show = document.getElementById("show");
+
+				var ctx2 = show.getContext('2d');
+
+				for (let i = 0; i < height; i++) {
+					for (let j = 0; j < txt.length * width; j++) {
+
+						let r = rgbaData[i * txt.length * width + j][0];
+						let g = rgbaData[i * txt.length * width + j][1];
+						let b = rgbaData[i * txt.length * width + j][2];
+						let a = rgbaData[i * txt.length * width + j][3];
+
+						ctx2.beginPath();
+						ctx2.arc(8 * (j + 1), 8 * (i + 1), 4, 0, 2 * Math.PI, false);
+						ctx2.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+						console.log("rgba(" + r + "," + g + "," + b + "," + a + ")");
+						ctx2.fill();
+					}
+				}
+			}
+
+			/*
+			for (let i = 0; i < s.length; i++) {
+				
+				//B
+				if((i+1)%3===0){
+					b = Math.floor((s[i] * 6/256));
+					rgb =r+g+b;
+					console.log(rgb);
+					arry.push("0x"+rgb.toString(16).toUpperCase());
+					r = 0,g=0,b =0;
+				}
+				//R
+				else if((i+1)%3===1){
+					r =Math.floor((s[i]* 6/256)*36);
+				}
+				//G
+				else if((i+1)%3==2){
+					g = Math.floor((s[i] * 6/256)*6);
+				}
+				
+			}
+			
+		*/
+		</script>
+	</body>
 </html>

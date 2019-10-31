@@ -1,5 +1,5 @@
 
-
+app.drawText(app.sendInfo,app.fontSize,'tomato');
 
 //drawFont('MESSAGE1',16,'tomato');
 /*
