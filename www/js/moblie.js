@@ -130,7 +130,7 @@ function renderDigit(cxt){
 			{
 				cxt.fillStyle="rgb(100,102,100)";
 				cxt.beginPath();
-				cxt.fillStyle="green";
+				cxt.fillStyle="#757575";
 				/*
 				cxt.fillRect(latticePointSize*(j),(i)*latticePointSize,latticePointSize,latticePointSize);
 				
@@ -138,7 +138,20 @@ function renderDigit(cxt){
 				cxt.fill();*/
 				cxt.arc(latticePointSize*(j)+latticePointSize/2,(i)*latticePointSize+latticePointSize/2,latticePointSize/2,0,2*Math.PI);
 				cxt.stroke();
-				cxt.strokeStyle = "red";
+				
+				cxt.fill();
+			}
+			else{
+				cxt.beginPath();
+				cxt.fillStyle="red";
+				/*
+				cxt.fillRect(latticePointSize*(j),(i)*latticePointSize,latticePointSize,latticePointSize);
+				
+				cxt.closePath();
+				cxt.fill();*/
+				cxt.arc(latticePointSize*(j)+latticePointSize/2,(i)*latticePointSize+latticePointSize/2,latticePointSize/2,0,2*Math.PI);
+				cxt.stroke();
+				
 				cxt.fill();
 			}
 		}
