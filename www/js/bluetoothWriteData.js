@@ -6,10 +6,21 @@ document.addEventListener('plusready', function(e) {
 	
 	//打开蓝牙
 	openBluetoothAdapter();
-	//创建连接
-	createConnection(id);
-	//获取连接
 	getConnectedDevices();
+	
+	var isCD = isConnectedDevices();
+	if(isCD){
+		//获取连接
+		console.log("获取连接中"+isCD);
+		getConnectedDevices();
+	}
+	else{
+		//创建连接
+		console.log("连接中"+isCD);
+		createConnection(id);
+	}
+	
+	
 
 });
 
@@ -130,5 +141,26 @@ function getCharacteristics(deviceId,serviceId ){
 			console.log('get characteristics failed: '+JSON.stringify(e));
 		}
 	});
+}
+
+//
+
+function isConnectedDevices(){
+	var isCD = false;
+	plus.bluetooth.getConnectedBluetoothDevices({
+		success:function(e){
+			var devices = e.devices;
+			for(var i in devices){			
+				if(devices[i].deviceId==window.localStorage.getItem("id")){
+					isCD = true;
+				}
+			}
+			
+		},
+		fail:function(e){
+			console.log('connected devices failed: '+JSON.stringify(e));
+		}
+	});
+	return isCD;
 }
 	
