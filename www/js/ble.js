@@ -8,7 +8,7 @@ var serviceId = window.localStorage.getItem("server");
 
 		//打开蓝牙
 		openBluetoothAdapter();
-		getConnectedDevices();
+		//getConnectedDevices();
 		if (isConnectedDevices()) {
 			//获取连接
 			console.log("获取连接中");
@@ -18,12 +18,13 @@ var serviceId = window.localStorage.getItem("server");
 			console.log("连接中");
 			createConnection(id);
 		}
+		
 		getServices(id);
 
 		getCharacteristics(id, serviceId);
 		//监听
 		listenerStateChange();
-
+		listenerConnection()
 	});
 
 
@@ -67,7 +68,14 @@ var serviceId = window.localStorage.getItem("server");
 			deviceId: deviceId,
 			success: function(e) {
 				plus.nativeUI.closeWaiting();
-				mui.toast("已连接到" + deviceId);
+				//超时
+				if(e.code==10012){
+					mui.toast("连接超时！");
+				}
+				else{
+					mui.toast("已连接到" + deviceId);
+				}
+				
 				console.log('create connection success: ' + JSON.stringify(e));
 			},
 			fail: function(e) {
@@ -91,6 +99,22 @@ var serviceId = window.localStorage.getItem("server");
 		});
 	}
 
+	// 监听蓝牙设备连接状态
+	function listenerConnection(){
+		plus.bluetooth.onBLEConnectionStateChange(function(e){
+			if(!e.connected){
+				mui.toast("连接已断开");
+				app.devname = '无连接';
+			}
+			else{
+				app.devname = name;
+				mui.toast("已连接");
+			}
+			console.log('connection state changed: '+JSON.stringify(e));
+		});
+	}
+		
+	
 	// 获取已连接的蓝牙设备
 	function getConnectedDevices() {
 		plus.bluetooth.getConnectedBluetoothDevices({
@@ -157,9 +181,12 @@ var serviceId = window.localStorage.getItem("server");
 				for (var i in characteristics) {
 					console.log(i + ': ' + JSON.stringify(characteristics[i]));
 					
+					if(characteristics[i].uuid=="00002A03-0000-1000-8000-00805F9B34FB"){
 					readCharacteristics(id,serviceId,characteristics[i].uuid);
 					writeCharacteristics(id,serviceId,characteristics[i].uuid);
-					startCharacteristicsNotify(id,serviceId,characteristics[i].uuid);
+					startCharacteristicsNotify(id,serviceId,characteristics[i].uuid);	
+					}
+				
 
 				}
 			},

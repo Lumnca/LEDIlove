@@ -154,6 +154,7 @@
 				data: {
 					sendInfo: 'MESSAGE1',
 					active: 0,
+					devname : '无连接',
 					fontSize: 16,
 					fontStyle: '宋体',
 					charLength: '0/50',
@@ -206,18 +207,18 @@
 					inputLength: function() {
 						this.drawText(this.sendInfo, this.fontSize, 'tomato');
 						return this.sendInfo.length + "/50";
-					},
-					devname: function() {
+					}
+					/*
+					devname: function(s) {
 						var id = window.localStorage.getItem("id");
 						var name =  window.localStorage.getItem("name");
 						if(id !== '' && name !== null){
-							return id;
+							return name;
 						}
 						else{
-							//mui.toast("无连接");
 							return "无连接";
 						}
-					}
+					}*/
 				}
 			});
 			mui.init({

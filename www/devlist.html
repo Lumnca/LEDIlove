@@ -57,7 +57,7 @@
 
 			</mu-appbar>
 			<ul class="mui-table-view" style="background: #515151;">
-				<li class="mui-table-view-cell mui-media" v-for="item in devList" v-if="item[0].name!=='*'">
+				<li class="mui-table-view-cell mui-media" v-for="item in devList" v-if="item[0].name!==''">
 					<a href="#" @click="getDev(item[0])">
 						<mu-flex class="flex-wrapper" justify-content="start" align-items="center">
 							<mu-flex class="flex-demo devname" justify-content="center">{{item[0].name}}</mu-flex>
