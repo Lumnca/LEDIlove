@@ -49,9 +49,9 @@
 			</mu-appbar>
 			<div class="input1" :style="inputStyle">
 				<div id="dz" style="overflow: scroll; width: 375rem;">
-				</div>			
-			</div  >
-			
+				</div>
+			</div>
+
 
 			<mu-container>
 				<mu-tabs :value.sync="active" :full-width="true" indicator-color="#FFD700" style="height: 25px;">
@@ -93,34 +93,34 @@
 				<div class="demo-text" v-if="active === 1">
 					<div style="padding: 20px 10px;">
 						<span>字体色：&nbsp; </span>
-						<el-color-picker v-model="inputStyle.color" size="mini" show-alpha :change="changeFontColor()" :predefine="predefineColors"></el-color-picker> &nbsp;
+						<el-color-picker v-model="inputStyle.color" size="mini" show-alpha :change="changeFontColor()" :predefine="predefineColors"></el-color-picker>
+						&nbsp;
 						<span>背景色：&nbsp; </span>
-						<el-color-picker v-model="inputStyle.background" size="mini" show-alpha :change="changeFontColor()" :predefine="predefineColors"></el-color-picker> &nbsp;
+						<el-color-picker v-model="inputStyle.background" size="mini" show-alpha :change="changeFontColor()" :predefine="predefineColors"></el-color-picker>
+						&nbsp;
 					</div>
 				</div>
 			</mu-container>
 
 			<mu-container>
-				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " 
-				 auto-validate>
+				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " auto-validate>
 					<mu-form-item prop="input" color="#FFFFFF">
 						<mu-text-field v-model="sendInfo" style="color: #FF0000;" @blur="updateDz()"></mu-text-field>
 					</mu-form-item>
 				</mu-form>
 			</mu-container>
 			<mu-container>
-			  <mu-row gutter>
-				<mu-col span="12">
-				   <mu-select label="图片选择" multiple chips v-model="imgTags" full-width  @blur="insertImg()" >
-				          <template slot="selection" slot-scope="scope">
-				            <mu-chip :selected="scope.selected" color="teal">
-				              {{scope.label}}
-				            </mu-chip>
-				          </template>
-				       <mu-option v-for="item,index in img" :key="item.title" :label="item.title" :value="item.id"></mu-option>
-				    </mu-select>
-				</mu-col>
-			  </mu-row>
+				<mu-row gutter>
+					<mu-col span="8">
+						<mu-select label="图片选择" chips v-model="imgTags" full-width>
+							<mu-option v-for="option,index in img" :key="option.title" :label="option.title" :value="option.id"></mu-option>
+						</mu-select>
+					</mu-col>
+					<mu-col span="4">
+						<br>
+						<mu-button color="primary" @click="insertImg()">上传图片</mu-button>
+						<mu-col />
+				</mu-row>
 			</mu-container>
 			<div class="key">
 				<span>页面特效以及模式选择</span>
@@ -171,10 +171,10 @@
 			var app = new Vue({
 				el: '#app',
 				data: {
-					dzInfo :[],
-					sendInfo: 'MESSAGE',
+					dzInfo: [],
+					sendInfo: '你好',
 					active: 0,
-					devname : '无连接',
+					devname: '无连接',
 					fontSize: 16,
 					fontStyle: '宋体',
 					charLength: '0/50',
@@ -193,18 +193,20 @@
 						'rgb(0, 255, 0)',
 						'rgb(0, 0, 0)',
 					],
-					imgTags : [],
-					img : [
-						{
-							id : 1,
-							title : '图片一',
-							data : img1Data.trim()
+					imgTags: "选择",
+					img: [{
+							id: 1,
+							title: '图片一',
+							data: img1Data.trim()
 						},
 						{
-							id : 2,
-							title : '图片二',
-							data : img2Data.trim()
+							id: 2,
+							title: '图片二',
+							data: img2Data.trim()
 						}
+					],
+					existsImage: [
+
 					],
 					form: {
 						input: ''
@@ -221,92 +223,147 @@
 					devlistView() {
 						window.location.href = "devlist.html";
 					},
-					changeFontColor(){
-						
+					changeFontColor() {
+
 					},
-					updateDz(){
-						if(this.sendInfo.length>=1){
+					updateDz() {
+						if (this.sendInfo.length >= 1){
 							this.dzInfo = [];
+							let imgNumber = 0;
 							for (var i = 0; i < this.sendInfo.length; i++) {
-								this.showDZ(this.sendInfo[i],i);
+
+								if (this.sendInfo[i] != "*") {
+									this.showDZ(this.sendInfo[i], i);
+								} 
+								else {
+									//console.log(this.existsImage[imgNumber].data);
+									this.dzInfo.push({"index":i,"data":this.existsImage[imgNumber].data,"isImg":true});
+									imgNumber++;
+								}
 							}
+
 						}
 					},
-					showDZ(text,indexOfdz){
-							var dataArray = [];
-														
-							$.post("http://47.106.254.86:1234/server1.php", {
+					showDZ(text, indexOfdz) {
+						var dataArray = [];
+
+						$.post("http://47.106.254.86:1234/server1.php", {
 								txt: text,
 							},
-														
+
 							function(data, status) {
+								console.log("SCUUSE! TEXT:"+text+" I:"+indexOfdz);
+								
 								var srt = JSON.parse(data);
+
 								srt.forEach((item) => {
 									var zero = '00000000';
 									var hex = parseInt(item, 16).toString(2);
 									var tmp = 8 - hex.length;
 									dataArray.push(zero.substr(0, tmp) + hex);
 								});
-														
-								var fontData = dataArray.join('');							
-								app.dzInfo.push({"index":indexOfdz,"data":fontData});
-								
-								if(app.dzInfo.length>=app.sendInfo.length){
-									document.getElementById('dz').innerHTML ="";
-									
-									setTimeout(function(){
+
+								var fontData = dataArray.join('');
+
+								app.dzInfo.push({
+									"index": indexOfdz,
+									"data": fontData,
+									"isImg": false
+								});
+
+								if (app.dzInfo.length == app.sendInfo.length) {
+
+									document.getElementById('dz').innerHTML = "";
+
+									setTimeout(function() {
+										
 										for (var l = 0; l < app.dzInfo.length; l++) {
-											
+
 											let fontData;
-											
+
 											for (let item in app.dzInfo) {
-												if(app.dzInfo[item].index == l){
+												if (app.dzInfo[item].index == l) {
 													fontData = app.dzInfo[item].data;
 												}
 											}
-											
+
 											var canvas = document.createElement('canvas');
 											var ctx2 = canvas.getContext('2d');
 											canvas.width = 96;
 											canvas.height = 96;
-											
+
 											for (let i = 0; i < 16; i++) {
 												for (let j = 0; j < 16; j++) {
-													if (fontData[i * 16 + j] == "1"){
+													if (fontData[i * 16 + j] == "1") {
 														ctx2.beginPath();
-														ctx2.arc((j+0.5) * 6, 6 * (i+0.5), 3, 0, 2 * Math.PI, true);
+														ctx2.arc((j + 0.5) * 6, 6 * (i + 0.5), 3, 0, 2 * Math.PI, true);
 														ctx2.fillStyle = "rgba(255,0,0,255)";
 														ctx2.fill();
 													} else {
-														
+
 													}
 												}
-											}	
+											}
 											document.getElementById('dz').appendChild(canvas);
-										}	
-									},2000);
+										}
+									}, 2000);
 								}
 							});
 
 					},
-					insertImg(){
-						for (var i = 0; i < this.imgTags.length; i++) {
-							
-							for (let item in this.img) {
-							
-								if(this.imgTags[i]==this.img[item].id){
-									let l = this.dzInfo.length;
-									this.dzInfo.push({"index":l,"data":this.img[item].data});
-								
+					showImg(data, index) {
+						var canvas = document.createElement('canvas');
+						var ctx2 = canvas.getContext('2d');
+						canvas.width = 96;
+						canvas.height = 96;
+
+						for (let i = 0; i < 16; i++) {
+							for (let j = 0; j < 16; j++) {
+								if (data[i * 16 + j] == "1") {
+									ctx2.beginPath();
+									ctx2.arc((j + 0.5) * 6, 6 * (i + 0.5), 3, 0, 2 * Math.PI, true);
+									ctx2.fillStyle = "rgba(255,0,0,255)";
+									ctx2.fill();
+								} else {
+
 								}
-								
 							}
-							
+						}
+						document.getElementById('dz').appendChild(canvas);
+					},
+					insertImg() {
+						for (let item in this.img) {
+							if (this.imgTags == this.img[item].id) {
+								let l = this.dzInfo.length;
+								this.sendInfo += "*";
+								//this.dzInfo.push({"index":l,"data":this.img[item].data,"isImg":true});
+								this.existsImage.push({
+									"id": this.img[item].id,
+									"data": this.img[item].data,
+									"index": l
+								});
+								this.showImg(this.img[item].data, l);
+								console.log(this.img[item].title);
+							}
 						}
 					}
 				},
 				computed: {
-					inputLength: function() {	
+					inputLength: function() {
+						
+						if(this.sendInfo.indexOf('*')==-1){
+							this.existsImage = [];
+						}
+						else{
+							let gs = 0;
+							for (var i = 0; i < this.sendInfo.length; i++) {
+								if(this.sendInfo[i]=='*'){
+									console.log(i);
+								}
+							}						
+						}
+					
+						
 						return this.sendInfo.length + "/50";
 					}
 				}
@@ -335,6 +392,5 @@
 			}
 			app.updateDz();
 		</script>
-	
 	</body>
 </html>
