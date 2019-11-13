@@ -10,9 +10,11 @@
 	overflow: scroll;
 	color: #FFFFFF;
 	text-align: left;
-	vertical-align: middle
+	vertical-align: middle;
 }
-
+canvas{
+	float: left;
+}
 .pad {
 	margin-top: -14px;
 }

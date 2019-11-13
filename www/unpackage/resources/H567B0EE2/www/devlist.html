@@ -6,15 +6,16 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" href="css/devlist.css" />
-		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8"/>
+		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
 		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 		<script type="text/javascript" src="js/update.js"></script>
-		<script type="text/javascript"  src="js/devlist/dev.js"></script>
-		
+		<script type="text/javascript" src="js/devlist/dev.js"></script>
+
 		<!--Muse-UI框架引入-->
 		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
 		<script src="https://unpkg.com/vue/dist/vue.js"></script>
 		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+
 		<!--图标框引入-->
 		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
 		<link rel="stylesheet" href="css/font-awesome.min.css" />
@@ -22,13 +23,23 @@
 		<link rel="stylesheet" href="css/glyphicons.css" />
 		<script src="js/mui.js"></script>
 		<script src="js/update.js" type="text/javascript" charset="utf-8"></script>
+		<style>
+			.demo-loading-wrap {
+				height: 300px;
+				position: relative;
+
+				.mu-button {
+					margin: 6px 8px;
+				}
+			}
+		</style>
 	</head>
 
 	<body style="background: #515151;color: #FFFFFF;">
-		
+
 		<div id="app">
 			<mu-appbar color="#515151">
-			
+
 				<mu-row gutter>
 					<mu-col span="3">
 						<div class="grid-cell">
@@ -39,74 +50,97 @@
 					</mu-col>
 					<mu-col span="3">
 						<div class="grid-cell" onclick="indexView()">
-							 <span >主页 <i class="fa fa-angle-right"> </i></span>
+							<span>主页 <i class="fa fa-angle-right"> </i></span>
 						</div>
 					</mu-col>
 				</mu-row>
-			
+
 			</mu-appbar>
 			<ul class="mui-table-view" style="background: #515151;">
-			    <li class="mui-table-view-cell mui-media" v-for="item in devList" v-if="item[0].name!==''">
-			        <a href="#">
-					    <mu-flex class="flex-wrapper" justify-content="start" align-items="center">
-							<mu-flex class="flex-demo devname" justify-content="center" >{{item[0].name}}</mu-flex>
-							 <mu-flex class="flex-demo" justify-content="end" fill>Rssi:{{item[0].RSSI}}</mu-flex>
-					    </mu-flex>
+				<li class="mui-table-view-cell mui-media" v-for="item in devList" v-if="item[0].name!==''">
+					<a href="#" @click="getDev(item[0])">
+						<mu-flex class="flex-wrapper" justify-content="start" align-items="center">
+							<mu-flex class="flex-demo devname" justify-content="center">{{item[0].name}}</mu-flex>
+							<mu-flex class="flex-demo" justify-content="end" fill>Rssi:{{item[0].RSSI}}</mu-flex>
+						</mu-flex>
 						<mu-flex class="flex-wrapper" justify-content="start">
 							<mu-flex class="flex-demo" justify-content="center" style=" color: #929292;">Mac:{{item[0].deviceId}}</mu-flex>
 						</mu-flex>
-			        </a>
-			    </li>
+					</a>
+				</li>
 			</ul>
+			
 		</div>
+
+
 		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
 		<!--下拉刷新容器-->
-		
-			
 		</div>
 		<script>
 			var app = new Vue({
-				el : '#app',
-				data:{
-					devList : [
-						[
-							{
-								name : 'test',
-								deviceId : '00000000000000',
-								RSSI : -87
-							}
-						]
-					]
+				el: '#app',
+				data: {
+					devList: [
+						[{
+							name: 'test',
+							deviceId: '00000000000000',
+							RSSI: -87
+						}]
+					],
+					loading1: false,
+					loading2: false
+				},
+				methods: {
+					getDev(dev) {
+						
+						window.localStorage.setItem("name", dev.name);
+						window.localStorage.setItem("id", dev.deviceId);
+						window.localStorage.setItem("server", dev.advertisServiceUUIDs);
+						window.location.href = "main.html";
+					},
+					loading() {
+						this.loading2 = true;
+						setTimeout(() => {
+							this.loading2 = false;
+						}, 2000)
+					},
+					fullscreen() {
+						const loading = this.$loading();
+						setTimeout(() => {
+							loading.close();
+						}, 2000)
+					}
 				}
 			})
-			function indexView(){
-				window.location.href="main.html"
+
+			function indexView() {
+				window.location.href = "main.html"
 			}
 			mui.init({
 				pullRefresh: {
 					container: '#pullrefresh',
 					down: {
-						style:'circle',
+						style: 'circle',
 						callback: pulldownRefresh
 					}
 				}
 			});
-			
-			
+
+
 			/**
 			 * 下拉刷新具体业务实现
 			 */
 			function pulldownRefresh() {
 				mui.toast("刷新成功");
 				setTimeout(function() {
-					
+
 					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
-					
+
 				}, 1500);
-				setTimeout(function(){
+				setTimeout(function() {
 					window.location.reload();
-				},500)
-				
+				}, 500)
+
 			}
 		</script>
 	</body>

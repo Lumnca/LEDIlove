@@ -10,7 +10,7 @@
 		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 		<script type="text/javascript" src="js/update.js"></script>
 		<link rel="stylesheet" href="css/main.css" />
-
+		<script src="js/ble.js"></script>
 		<!--Muse-UI框架引入-->
 		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
 		<script src="https://unpkg.com/vue/dist/vue.js"></script>
@@ -32,7 +32,7 @@
 				<mu-row gutter>
 					<mu-col span="3">
 						<div class="grid-cell" @click="devlistView()">
-							<span><i class="fa fa-unlink"></i> 无连接</span>
+							<span><i class="fa  fa-chain"></i> {{devname}}</span>
 						</div>
 					</mu-col>
 					<mu-col span="6">
@@ -46,8 +46,8 @@
 				</mu-row>
 
 			</mu-appbar>
-			<div class="input1">
-				<canvas id="dight" width="4000px" style="overflow: scroll;" ></canvas>
+			<div class="input1" :style="inputStyle">
+				<canvas id="dight" width="4000px" style="overflow: scroll;"></canvas>
 			</div>
 
 			<mu-container>
@@ -71,8 +71,6 @@
 						</mu-row>
 					</mu-container>
 					<mu-container>
-
-
 						<mu-row gutter>
 							<mu-col span="6" lg="6" sm="6">
 								<mu-select label="字符" v-model="inputLength" style="color: #FFFFFF;" disabled full-width>
@@ -91,18 +89,17 @@
 
 				<div class="demo-text" v-if="active === 1">
 					<div style="padding: 20px 10px;">
-						预览&nbsp; &nbsp; <span v-bind:style="{'background-color':color.background}"><i v-bind:style="{'color':color.font}">LED</i></span>&nbsp;
-						&nbsp;
 						<span>字体色：&nbsp; </span>
-						<el-color-picker v-model="color.font" size="mini"></el-color-picker> &nbsp;
+						<el-color-picker v-model="inputStyle.color" size="mini" show-alpha :change="changeFontColor()" :predefine="predefineColors"></el-color-picker> &nbsp;
 						<span>背景色：&nbsp; </span>
-						<el-color-picker v-model="color.background" size="mini"></el-color-picker> &nbsp;
+						<el-color-picker v-model="inputStyle.background" size="mini" show-alpha :change="changeFontColor()" :predefine="predefineColors"></el-color-picker> &nbsp;
 					</div>
 				</div>
 			</mu-container>
 
 			<mu-container>
-				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " :rules="updateInfo" auto-validate>
+				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " :rules="updateInfo"
+				 auto-validate>
 					<mu-form-item prop="input" color="#FFFFFF">
 						<mu-text-field v-model="sendInfo" style="color: #FF0000;"></mu-text-field>
 					</mu-form-item>
@@ -138,7 +135,17 @@
 					</el-row>
 					<mu-container>
 			</div>
-			<a href="test.html">-------</a>
+			<mu-container class="button-wrapper">
+				<mu-row gutter>
+					<mu-col span=""></mu-col>
+					<mu-col span="10">
+						<el-row>
+							<mu-button color="primary" full-width>发送命令</mu-button>
+						</el-row>
+					</mu-col>
+					<mu-col span="1"></mu-col>
+				</mu-row>
+				<mu-container>
 		</div>
 		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
 		<script>
@@ -147,6 +154,7 @@
 				data: {
 					sendInfo: 'MESSAGE1',
 					active: 0,
+					devname : '无连接',
 					fontSize: 16,
 					fontStyle: '宋体',
 					charLength: '0/50',
@@ -155,12 +163,22 @@
 					effectOptions: ['无', '镜像', '旋转90°', '旋转180°', '旋转270°', '旋转360°'],
 					fontSizeOptions: [12, 14, 16],
 					fontStyleOptions: ['宋体', '雅黑', 'Arial', 'New Roman', 'Verdana'],
+					predefineColors: [
+						'rgb(255, 255, 255)',
+						'rgb(255, 255, 0)',
+						'rgb(255, 0, 255)',
+						'rgb(0, 255, 255)',
+						'rgb(255, 0, 0)',
+						'rgb(0, 0, 255)',
+						'rgb(0, 255, 0)',
+						'rgb(0, 0, 0)',
+					],
 					form: {
 						input: ''
 					},
-					color: {
-						font: '#FFFFFF',
-						background: '#000000'
+					inputStyle: {
+						background: '#000000',
+						color: 'FFFFFF'
 					}
 				},
 				methods: {
@@ -173,20 +191,34 @@
 					drawText(font, size, color) {
 						var oText = document.getElementById("dight");
 						var oContext = oText.getContext("2d");
-						oContext.clearRect(0,0,oText.width,oText.height);  
+						oContext.clearRect(0, 0, oText.width, oText.height);
 						oContext.font = size * 6 + "px Microsoft JhengHei"; //设置文本大小 + 字体
 						oContext.fillStyle = color; //设置文本颜色
 						oContext.fillText(font, 0, 84);
 					},
-					updateInfo(){
-						
+					updateInfo() {
+
+					},
+					changeFontColor(color) {
+						this.drawText(app.sendInfo, app.fontSize, app.inputStyle.color);
 					}
 				},
 				computed: {
 					inputLength: function() {
-						this.drawText(this.sendInfo,this.fontSize,'tomato');
+						this.drawText(this.sendInfo, this.fontSize, 'tomato');
 						return this.sendInfo.length + "/50";
 					}
+					/*
+					devname: function(s) {
+						var id = window.localStorage.getItem("id");
+						var name =  window.localStorage.getItem("name");
+						if(id !== '' && name !== null){
+							return name;
+						}
+						else{
+							return "无连接";
+						}
+					}*/
 				}
 			});
 			mui.init({
@@ -206,9 +238,7 @@
 			function pulldownRefresh() {
 				mui.toast("刷新成功");
 				setTimeout(function() {
-
 					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
-
 				}, 1500);
 				setTimeout(function() {
 					window.location.reload();

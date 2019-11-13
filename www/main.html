@@ -11,6 +11,7 @@
 		<script type="text/javascript" src="js/update.js"></script>
 		<link rel="stylesheet" href="css/main.css" />
 		<script src="js/ble.js"></script>
+		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
 		<!--Muse-UI框架引入-->
 		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
 		<script src="https://unpkg.com/vue/dist/vue.js"></script>
@@ -47,8 +48,10 @@
 
 			</mu-appbar>
 			<div class="input1" :style="inputStyle">
-				<canvas id="dight" width="4000px" style="overflow: scroll;"></canvas>
-			</div>
+				<div id="dz" style="overflow: scroll; width: 375rem;">
+				</div>			
+			</div  >
+			
 
 			<mu-container>
 				<mu-tabs :value.sync="active" :full-width="true" indicator-color="#FFD700" style="height: 25px;">
@@ -98,14 +101,27 @@
 			</mu-container>
 
 			<mu-container>
-				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " :rules="updateInfo"
+				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " 
 				 auto-validate>
 					<mu-form-item prop="input" color="#FFFFFF">
-						<mu-text-field v-model="sendInfo" style="color: #FF0000;"></mu-text-field>
+						<mu-text-field v-model="sendInfo" style="color: #FF0000;" @blur="updateDz()"></mu-text-field>
 					</mu-form-item>
 				</mu-form>
 			</mu-container>
-
+			<mu-container>
+			  <mu-row gutter>
+				<mu-col span="12">
+				   <mu-select label="图片选择" multiple chips v-model="imgTags" full-width  @blur="insertImg()" >
+				          <template slot="selection" slot-scope="scope">
+				            <mu-chip :selected="scope.selected" color="teal">
+				              {{scope.label}}
+				            </mu-chip>
+				          </template>
+				       <mu-option v-for="item,index in img" :key="item.title" :label="item.title" :value="item.id"></mu-option>
+				    </mu-select>
+				</mu-col>
+			  </mu-row>
+			</mu-container>
 			<div class="key">
 				<span>页面特效以及模式选择</span>
 				<mu-container class="button-wrapper">
@@ -140,7 +156,7 @@
 					<mu-col span=""></mu-col>
 					<mu-col span="10">
 						<el-row>
-							<mu-button color="primary" full-width>发送命令</mu-button>
+							<mu-button color="primary" full-width @click="sendDevInfo()">发送命令</mu-button>
 						</el-row>
 					</mu-col>
 					<mu-col span="1"></mu-col>
@@ -148,11 +164,15 @@
 				<mu-container>
 		</div>
 		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+		<script src="js/main/imginput.js"></script>
+		<script src="js/main/dight.js"></script>
+		<script src="js/imgDzData/imgsdata16.js"></script>
 		<script>
 			var app = new Vue({
 				el: '#app',
 				data: {
-					sendInfo: 'MESSAGE1',
+					dzInfo :[],
+					sendInfo: 'MESSAGE',
 					active: 0,
 					devname : '无连接',
 					fontSize: 16,
@@ -173,6 +193,19 @@
 						'rgb(0, 255, 0)',
 						'rgb(0, 0, 0)',
 					],
+					imgTags : [],
+					img : [
+						{
+							id : 1,
+							title : '图片一',
+							data : img1Data.trim()
+						},
+						{
+							id : 2,
+							title : '图片二',
+							data : img2Data.trim()
+						}
+					],
 					form: {
 						input: ''
 					},
@@ -188,37 +221,94 @@
 					devlistView() {
 						window.location.href = "devlist.html";
 					},
-					drawText(font, size, color) {
-						var oText = document.getElementById("dight");
-						var oContext = oText.getContext("2d");
-						oContext.clearRect(0, 0, oText.width, oText.height);
-						oContext.font = size * 6 + "px Microsoft JhengHei"; //设置文本大小 + 字体
-						oContext.fillStyle = color; //设置文本颜色
-						oContext.fillText(font, 0, 84);
+					changeFontColor(){
+						
 					},
-					updateInfo() {
+					updateDz(){
+						if(this.sendInfo.length>=1){
+							this.dzInfo = [];
+							for (var i = 0; i < this.sendInfo.length; i++) {
+								this.showDZ(this.sendInfo[i],i);
+							}
+						}
+					},
+					showDZ(text,indexOfdz){
+							var dataArray = [];
+														
+							$.post("http://47.106.254.86:1234/server1.php", {
+								txt: text,
+							},
+														
+							function(data, status) {
+								var srt = JSON.parse(data);
+								srt.forEach((item) => {
+									var zero = '00000000';
+									var hex = parseInt(item, 16).toString(2);
+									var tmp = 8 - hex.length;
+									dataArray.push(zero.substr(0, tmp) + hex);
+								});
+														
+								var fontData = dataArray.join('');							
+								app.dzInfo.push({"index":indexOfdz,"data":fontData});
+								
+								if(app.dzInfo.length>=app.sendInfo.length){
+									document.getElementById('dz').innerHTML ="";
+									
+									setTimeout(function(){
+										for (var l = 0; l < app.dzInfo.length; l++) {
+											
+											let fontData;
+											
+											for (let item in app.dzInfo) {
+												if(app.dzInfo[item].index == l){
+													fontData = app.dzInfo[item].data;
+												}
+											}
+											
+											var canvas = document.createElement('canvas');
+											var ctx2 = canvas.getContext('2d');
+											canvas.width = 96;
+											canvas.height = 96;
+											
+											for (let i = 0; i < 16; i++) {
+												for (let j = 0; j < 16; j++) {
+													if (fontData[i * 16 + j] == "1"){
+														ctx2.beginPath();
+														ctx2.arc((j+0.5) * 6, 6 * (i+0.5), 3, 0, 2 * Math.PI, true);
+														ctx2.fillStyle = "rgba(255,0,0,255)";
+														ctx2.fill();
+													} else {
+														
+													}
+												}
+											}	
+											document.getElementById('dz').appendChild(canvas);
+										}	
+									},2000);
+								}
+							});
 
 					},
-					changeFontColor(color) {
-						this.drawText(app.sendInfo, app.fontSize, app.inputStyle.color);
+					insertImg(){
+						for (var i = 0; i < this.imgTags.length; i++) {
+							
+							for (let item in this.img) {
+							
+								if(this.imgTags[i]==this.img[item].id){
+									let l = this.dzInfo.length;
+									this.dzInfo.push({"index":l,"data":this.img[item].data});
+								
+								}
+								
+							}
+							
+						}
 					}
 				},
 				computed: {
-					inputLength: function() {
-						this.drawText(this.sendInfo, this.fontSize, 'tomato');
+					inputLength: function() {	
 						return this.sendInfo.length + "/50";
 					}
-					/*
-					devname: function(s) {
-						var id = window.localStorage.getItem("id");
-						var name =  window.localStorage.getItem("name");
-						if(id !== '' && name !== null){
-							return name;
-						}
-						else{
-							return "无连接";
-						}
-					}*/
 				}
 			});
 			mui.init({
@@ -230,8 +320,6 @@
 					}
 				}
 			});
-
-
 			/**
 			 * 下拉刷新具体业务实现
 			 */
@@ -245,7 +333,8 @@
 				}, 500)
 
 			}
+			app.updateDz();
 		</script>
-		<script src="js/main/dight.js"></script>
+	
 	</body>
 </html>

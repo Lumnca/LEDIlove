@@ -1,12 +1,12 @@
 
-app.drawText(app.sendInfo,app.fontSize,'#FFFFFF');
 
-//drawFont('MESSAGE1',16,'tomato');
-/*
+
+
+
 function drawFont(font,size,color) {
 	
-		var height = 16;
-		var width = 16;
+		var height = size;
+		var width = size;
 
 		var canvas = document.createElement('canvas');
 
@@ -18,15 +18,19 @@ function drawFont(font,size,color) {
 
 		canvas.height = height;
 
-		ctx.font = "16px SimSun";
-
+		ctx.font = size+"px arial";
+		
 		ctx.fillStyle = "red";
 
-		ctx.fillText(txt, 0, 14);
+		ctx.fillText(txt, 0, 14*size/16);
+		
+		
+		canvas.style.transform="scale("+(1/window.devicePixelRatio)+")";
 
-		var datas = ctx.getImageData(0, 0, width * txt.length, height).data;
+		
+		var datas = ctx.getImageData(0, 0,size*txt.length,size).data;
 
-		console.log(datas.length);
+		console.log(datas);
 
 		//GBAR数据组
 		var rgbaData = [];
@@ -46,24 +50,26 @@ function drawFont(font,size,color) {
 		var show = document.getElementById("dight");
 
 		var ctx2 = show.getContext('2d');
-
+			
+		 ctx2.clearRect(0, 0, show.width, show.height);
+		
 		for (let i = 0; i < height; i++) {
 			for (let j = 0; j < txt.length * width; j++) {
 
 				let r = rgbaData[i * txt.length * width + j][0];
 				let g = rgbaData[i * txt.length * width + j][1];
 				let b = rgbaData[i * txt.length * width + j][2];
-				let a = rgbaData[i * txt.length * width + j][3];
+				let a = rgbaData[i * txt.length * width + j][3] > 100? 255 : 0;
 
 				ctx2.beginPath();
-				ctx2.arc(7 * (j + 1), 7 * (i + 1), 3.5, 0, 2 * Math.PI,true);
+				ctx2.arc(3.5 * (j + 1), 3.5 * (i + 1), 1.55, 0, 2 * Math.PI,true);
 				ctx2.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
 			//	console.log("rgba(" + r + "," + g + "," + b + "," + a + ")");
 				ctx2.fill();
 			}
 		}
 		
-	     var oText = document.getElementById("dight");
+	    /* var oText = document.getElementById("dight");
 		 
 	     var oContext = oText.getContext("2d");
 	           
@@ -72,6 +78,7 @@ function drawFont(font,size,color) {
 	   
 	    oContext.font = size*6 + "px Microsoft JhengHei";            //设置文本大小 + 字体
 	    oContext.fillStyle = color;                        //设置文本颜色
-	    oContext.fillText(font,0,84);   
+	    oContext.fillText(font,0,84);  
+		 */
 	}
-*/
+console.log(window.devicePixelRatio);

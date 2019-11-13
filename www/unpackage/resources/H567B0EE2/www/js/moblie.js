@@ -23,14 +23,14 @@
 
  
 var WINDOW_WIDTH = document.body.clientWidth;
-var WINDOW_HEIGHT= document.body.clientHeight;
+var WINDOW_HEIGHT= document.body.clientWidth;
 
 console.log(WINDOW_WIDTH+":"+ WINDOW_HEIGHT);
 /*
 *
 *点阵像素点的长宽，单位px,使用偶数精确度更高。取值10左右
 */
-var latticePointSize = 20
+var latticePointSize = WINDOW_WIDTH/32;
 
 /*
 *点阵行列
@@ -41,6 +41,8 @@ var latticePointSize = 20
 *
 *可以自定义，也可以通过像素点长宽实现全布局
 *
+* var latticeRowNumber = Math.floor(WINDOW_HEIGHT/latticePointSize);
+*var latticeColNumber = Math.floor(WINDOW_WIDTH/latticePointSize);
 */
 var latticeRowNumber = Math.floor(WINDOW_HEIGHT/latticePointSize);
 var latticeColNumber = Math.floor(WINDOW_WIDTH/latticePointSize);
@@ -78,7 +80,22 @@ window.onload=function(){
 *移动端事件
 *
 */
-
+canvas.onclick = function(event){
+	var e = event || window.event;
+	event.preventDefault();
+	    
+	var screenX = WINDOW_WIDTH;
+	var screenY = WINDOW_HEIGHT;
+	    
+	var x = event.clientX;
+	var y = event.clientY;
+	
+	 console.log((y/screenY)*latticeRowNumber+"-"+(x/screenX)*latticeColNumber)
+	 
+	var row = Math.floor((y/screenY)*latticeRowNumber);
+	var col = Math.floor((x/screenX)*latticeColNumber);
+	digit[row][col] = 1;
+}
 
 canvas.ontouchmove = function(event){
         var e = event || window.event;
@@ -113,8 +130,28 @@ function renderDigit(cxt){
 			{
 				cxt.fillStyle="rgb(100,102,100)";
 				cxt.beginPath();
-				cxt.fillRect(latticePointSize*(j),(i)*latticePointSize,latticePointSize,latticePointSize)
+				cxt.fillStyle="#757575";
+				/*
+				cxt.fillRect(latticePointSize*(j),(i)*latticePointSize,latticePointSize,latticePointSize);
+				
 				cxt.closePath();
+				cxt.fill();*/
+				cxt.arc(latticePointSize*(j)+latticePointSize/2,(i)*latticePointSize+latticePointSize/2,latticePointSize/2,0,2*Math.PI);
+				cxt.stroke();
+				
+				cxt.fill();
+			}
+			else{
+				cxt.beginPath();
+				cxt.fillStyle="red";
+				/*
+				cxt.fillRect(latticePointSize*(j),(i)*latticePointSize,latticePointSize,latticePointSize);
+				
+				cxt.closePath();
+				cxt.fill();*/
+				cxt.arc(latticePointSize*(j)+latticePointSize/2,(i)*latticePointSize+latticePointSize/2,latticePointSize/2,0,2*Math.PI);
+				cxt.stroke();
+				
 				cxt.fill();
 			}
 		}
