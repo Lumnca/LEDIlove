@@ -3,355 +3,184 @@
 	<head>
 		<meta charset="utf-8">
 		<title></title>
-		<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-		<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
-		<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="css/devlist.css" />
+		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8"/>
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<!--图标框引入-->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css" />
+		<link rel="stylesheet" href="css/climacons-font.css" />
+		<link rel="stylesheet" href="css/glyphicons.css" />
+		<script src="js/mui.js"></script>
 	</head>
-	<style>
-		.col-md-4{
-			border: 1px  solid #00ACED;
-			padding: 10px 20px;
-		}
-	</style>
-	<body>
 
-		<div class="container">
-		   <div class="row">
-			  <div class="col-md-4">
-				  <span>点阵 </span> 当前颜色阈值：<span id="filter"></span>
-				  <div style="width: 320px;height: 320px;">
-					
-				  	<canvas id="show" width="320px" height="320"></canvas>
-				  </div>
-			  </div>
-			  <div class="col-md-4">
-				  <span>图片</span>
-				  <div id="result" name="result" style="  width: 320px;height: 320px;"></div>
-			  </div>
-			  <div class="col-md-4">
-				  <span>数据</span>
-			  		<div id="data"  name="result" style="overflow-y: scroll; width: 320px;height: 320px; ">
-			  		
-			  		</div>		  
-			  </div>
-		   </div>
-		</div>
+	<body style="background: #515151;color: #FFFFFF;">
 		
-		
-		<br>
-		<div id="tbody">
+		<div id="app">
+			<mu-appbar color="#515151">
+			
+				<mu-row gutter>
+					<mu-col span="3">
+						<div class="grid-cell">
+						</div>
+					</mu-col>
+					<mu-col span="6">
+						<div class="grid-cell">SQL语句测试</div>
+					</mu-col>
+					<mu-col span="3">
+						<div class="grid-cell"  @click="setView()">
+							 <span >主页 <i class="fa fa-angle-right"> </i></span>
+						</div>
+					</mu-col>
+				</mu-row>
+			
+			</mu-appbar>
+			
 			<div>
-				<label>颜色过滤阈值：</label>
-				<input type="text" value="140" id="f"/><br>
-				<label>请选择一个图片文件：</label><br /><br />
-				<input type="file" id="file" class=" btn btn-default" style="height: 50px; width: 300px;text-align-last: 0;" />
+				<mu-container>
+					命令：<mu-text-field v-model="sqlText"></mu-text-field>
+				</mu-container>	
+				<mu-container class="button-wrapper">
+				  <button  @click="sendCmd()">执行命令</button>
+				<mu-container>
+				<div style="border: #FFFFFF solid 1px;padding: 10px 20px; height: 200px;margin-top: 1.25rem;">{{result }}</div>
+				<mu-list textline="two-line">
+				
+				    <mu-list-item avatar button :ripple="false" v-for="item in img">
+				      <mu-list-item-action>
+				        <mu-avatar>
+				          <mu-icon value="folder"></mu-icon>
+				        </mu-avatar>
+				      </mu-list-item-action>
+				      <mu-list-item-content>
+				        <mu-list-item-title>{{item.title}}</mu-list-item-title>
+				        <mu-list-item-sub-title>ID: {{item.id}}</mu-list-item-sub-title>
+				      </mu-list-item-content>
+				      <mu-list-item-action>
+				        <mu-button icon @click="deleteImg(item.id)">
+				          <mu-icon value="info" ></mu-icon>
+				        </mu-button>
+				      </mu-list-item-action>
+				    </mu-list-item>
+				    
+				  </mu-list>
 			</div>
-			<br>
-			<div>
-				<button class="btn btn-primary" value="读取图像" onclick="readAsDataURL()">显示图像</button>
-				<button class="btn btn-primary" onclick="drawImg(document.getElementsByTagName('img')[0])">生成点阵</button>
-				<button class="btn btn-primary" onclick="getData(1)">生成数据(RGB)</button>
-				<button class="btn btn-primary" onclick="getData(2)">生成数据(2位16进制)</button>
-			</div>
+			
 		</div>
-		
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+		<script src="js/database/db.js"></script>
 		<script>
-			var result = document.getElementById("result");
-			var file = document.getElementById("file");
-
-			//判断浏览器是否支持FileReader接口  
-			if (typeof FileReader == 'undefined') {
-				result.InnerHTML = "<p>你的浏览器不支持FileReader接口！</p>";
-				//使选择控件不可操作  
-				file.setAttribute("disabled", "disabled"); //使得之前操作失效，重新启动
-			}
-
-			function readAsDataURL() {
-				//检验是否为图像文件  
-				var file = document.getElementById("file").files[0];
-				if (!/image\/\w+/.test(file.type)) {
-					alert("这不是图片文件！请检查！");
-					return false;
-				}
-				var reader = new FileReader();
-				//将文件以Data URL形式读入页面  
-				reader.readAsDataURL(file);
-				reader.onload = function(e) {
-					var result = document.getElementById("result");
-					//显示文件  
-					result.innerHTML = '<img src="' + this.result + '" alt="" width=300 height=300/>';
-				}
-			}
+			document.addEventListener("plusready", function() {
+				
+				openNewDB('main','_doc/imgData/imgData.db');
+				
 			
-			var rgbaData = [];
-			var RGBNumber = [0, 0, 0, 0, 0, 0, 0]; //R,G,B,RG,RB,GB,RGB
-			var ColorOxData = [];
-			var  filter = 140;
-			function getData(type){
+				plus.sqlite.executeSql({
+						name: 'main',
+						sql: 'create table if not exists imgdata(id int primary key not null, data text not null,title text not null)',
+						success: function(e){
+							console.log('初始化数据库成功');
+						},
+						fail: function(e){
+							console.log('executeSql failed: '+JSON.stringify(e));
+						}
+				});
 				
-				var dataResult = document.getElementById('data');
-				var data = '';
-				
-				if(type==1){
-					for (let i = 0; i < rgbaData.length/4; i++) {
-						data+= "("+rgbaData[i][0]+","+rgbaData[i][1]+","+rgbaData[i][2]+")";
-					}
-				}
-				else{
-					for (let i = 0; i < ColorOxData.length; i++) {
-						data+="0x"+parseInt(ColorOxData[i],2).toString(16)+",";
-					}
-				}
-				
-				dataResult.innerHTML = data;
-			}
-			function drawImg(img) {
-				filter = document.getElementById('f').value;
-				var height = 64;
-
-				var width = 64;
-
-				var canvas = document.createElement('canvas');
-
-				var ctx = canvas.getContext('2d');
-
-
-				canvas.width = 32;
-
-				canvas.height = 32;
-
-				ctx.drawImage(img, 0, 0, 32, 32);
-
-				document.getElementById('show').appendChild(canvas);
-
-				console.log(ctx.drawImage(img, 0, 0, canvas.width, canvas.height));
-
-				var datas = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-				console.log(datas.length);
-
-				/*
-				*
-				* 0x 11111111
-				*/
-			
-				for (let i = 0; i < datas.length / 4; i++) {
-					rgbaData[i] = new Array();
-					let Ox = 0;
-					
-					let r = datas[i * 4] < filter ? 0 : 255;
-					
-					rgbaData[i].push(r);
-					let g = datas[i * 4 + 1] < filter ? 0 : 255;
-
-					rgbaData[i].push(g);
-					let b = datas[i * 4 + 2] < filter ? 0 : 255;
-	
-					rgbaData[i].push(b)
-					let a = datas[i * 4 + 3];
-					rgbaData[i].push(a);	
-					//R,G,B,RG,RB,GB,RGB
-					if (r == 255 && g == 255 && b == 255) {
-						Ox = '11111111';
-					} else if (r == 0 && g == 255 && b == 255) {
-						Ox = '00011111';
-					} else if (r == 255 && g == 0 && b == 255) {
-						Ox = '11100011';
-					} else if (r == 255 && g == 255 && b == 0) {
-						Ox = '11111100';
-					} else if (r == 0 && g == 0 && b == 255) {
-						Ox = '00000011';
-					} else if (r == 0 && g == 255 && b == 0) {
-						Ox = '00011100';
-					} else if (r == 255 && g == 0 && b == 0) {
-						Ox = '11100000';
-					}
-					else{
-						Ox = '00000000';
-					}
-					ColorOxData.push(Ox);
-				}
-
-				for (let i = 0; i < rgbaData.length; i++) {
-					console.log(rgbaData[i][0] + "," + rgbaData[i][1] + "," + rgbaData[i][2] + "," + rgbaData[i][3]);
-				}
-				document.getElementById('filter').innerHTML = filter;
-				let maxIndex = 0;
-				let maxNumber = 0;
-				
-				RGBNumber.map(function(item, index) {
-					if (item >= maxNumber) {
-						maxNumber = item;
-						maxIndex = index;
-					}
-				})
-				filter = document.getElementById('f').value;
-
-				console.log("Sum:" + maxNumber + " Type:" + maxIndex);
-
-				var show = document.getElementById("show");
-
-				var ctx2 = show.getContext('2d');
-
-
-
-				for (let i = 0; i < 32; i++) {
-					for (let j = 0; j < 32; j++) {
-
-						let r = rgbaData[i * 32 + j][0];
-						let g = rgbaData[i * 32 + j][1];
-						let b = rgbaData[i * 32 + j][2];
-						let a = rgbaData[i * 32 + j][3];
-
-						ctx2.beginPath();
-						ctx2.arc(8 * (j + 1), 8 * (i + 1), 4, 0, 2 * Math.PI, false);
-
-
-
-						if (RGBNumber[toRGB(r, g, b)] <= 30) {
-							ctx2.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
-							//ctx2.fillStyle = "rgba("+defaultRGB(maxIndex)[0]+","+defaultRGB(maxIndex)[1]+","+defaultRGB(maxIndex)[2]+","+a+")";
-						} else {
-							ctx2.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+				plus.sqlite.selectSql({
+					name: 'main',
+					sql: 'select * from imgData',
+					success: function(data) {
+						console.log('selectSql success: ' + JSON.stringify(data));
+						for (var i in data) {
+							app.result += 'ID:'+ data[i].id + " - 名称："+data[i].title;
+							app.img.push(data[i]);
 						}
 
-
-
-						//console.log("rgba("+r+","+g+","+b+","+a+")");
-						ctx2.fill();
+					},
+					fail: function(e) {
+						console.log('selectSql failed: ' + JSON.stringify(e));
+					}
+				});
+				console.log("加载成功！");		
+					closeDB('main');
+			},true);
+			var app = new Vue({
+				el : '#app',
+				data: {
+					sqlText : '',
+					form : '',
+					result : '显示结果',
+					img : []
+				},
+				methods:{
+					sendCmd(){
+						
+						openNewDB('main','_doc/imgData/imgData.db');
+					
+						plus.sqlite.executeSql({
+								name: 'main',
+								sql: this.sqlText,
+								success: function(e){
+									this.result = '执行命令成功!';
+									console.log('执行成功');	
+								},
+								fail: function(e){
+									this.result = '执行失败: '+JSON.stringify(e);
+									console.log('executeSql failed: '+JSON.stringify(e));
+								}
+						});
+						
+						selectSQL('main','select * from imgdata');
+						
+						closeDB('main');
+					},
+					setView() {
+						window.location.href = "main.html";
+					},
+					deleteImg(id){
+						
+						openNewDB('main','_doc/imgData/imgData.db');
+						executeSQL('main',"delete from imgData where id = "+id);
+						closeDB('main');
+						alert("成功删除图像！");
+						window.location.reload();
 					}
 				}
-			}
-			//R,G,B,RG,RB,GB,RGB
-			function toRGB(r, g, b) {
-				let type = 6;
-				if (r == 255 && g == 255 && b == 255) {
-					type = 6;
-				} else if (r == 0 && g == 255 && b == 255) {
-					type = 5;
-				} else if (r == 255 && g == 0 && b == 255) {
-					type = 4;
-				} else if (r == 255 && g == 255 && b == 0) {
-					type = 3;
-				} else if (r == 0 && g == 0 && b == 255) {
-					type = 2;
-				} else if (r == 0 && g == 255 && b == 0) {
-					type = 1;
-				} else if (r == 255 && g == 0 && b == 0) {
-					type = 0;
-				}
-				return type;
-			}
-			//R,G,B,RG,RB,GB,RGB
-			function defaultRGB(type) {
-				let rgb;
-
-				if (type == 0) {
-					rgb = [255, 0, 0];
-				} else if (type == 1) {
-					rgb = [0, 255, 0];
-				} else if (type == 2) {
-					rgb = [0, 0, 255];
-				} else if (type == 3) {
-					rgb = [255, 255, 0];
-				} else if (type == 4) {
-					rgb = [255, 0, 255];
-				} else if (type == 5) {
-					rgb = [0, 255, 255];
-				} else if (type == 6) {
-					rgb = [255, 255, 255];
-				}
-				return rgb;
-			}
-
-			function drawFont(font) {
-				var height = 16;
-				var width = 16;
-
-				var canvas = document.createElement('canvas');
-
-				var ctx = canvas.getContext('2d');
-
-				var txt = font;
-
-				canvas.width = width * txt.length;
-
-				canvas.height = height;
-
-				ctx.font = "16px SimSun";
-
-				ctx.fillStyle = "#000000";
-
-				ctx.fillText(txt, 0, 14);
-
-				var datas = ctx.getImageData(0, 0, width * txt.length, height).data;
-
-				console.log(datas.length);
-
-				//GBAR数据组
-				var rgbaData = [];
-
-				for (let i = 0; i < datas.length / 4; i++) {
-					rgbaData[i] = new Array();
-					let r = datas[i * 4];
-					rgbaData[i].push(r);
-					let g = datas[i * 4 + 1];
-					rgbaData[i].push(g);
-					let b = datas[i * 4 + 2];
-					rgbaData[i].push(b)
-					let a = datas[i * 4 + 3];
-					rgbaData[i].push(a);
-				}
-				console.log(rgbaData);
-				for (let i = 0; i < rgbaData.length; i++) {
-					console.log(rgbaData[i][0] + "," + rgbaData[i][1] + "," + rgbaData[i][2] + "," + rgbaData[i][3]);
-				}
-
-				var show = document.getElementById("show");
-
-				var ctx2 = show.getContext('2d');
-
-				for (let i = 0; i < height; i++) {
-					for (let j = 0; j < txt.length * width; j++) {
-
-						let r = rgbaData[i * txt.length * width + j][0];
-						let g = rgbaData[i * txt.length * width + j][1];
-						let b = rgbaData[i * txt.length * width + j][2];
-						let a = rgbaData[i * txt.length * width + j][3];
-
-						ctx2.beginPath();
-						ctx2.arc(8 * (j + 1), 8 * (i + 1), 4, 0, 2 * Math.PI, false);
-						ctx2.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
-						console.log("rgba(" + r + "," + g + "," + b + "," + a + ")");
-						ctx2.fill();
+			});
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: {
+						style:'circle',
+						callback: pulldownRefresh
 					}
 				}
-			}
-
-			/*
-			for (let i = 0; i < s.length; i++) {
-				
-				//B
-				if((i+1)%3===0){
-					b = Math.floor((s[i] * 6/256));
-					rgb =r+g+b;
-					console.log(rgb);
-					arry.push("0x"+rgb.toString(16).toUpperCase());
-					r = 0,g=0,b =0;
-				}
-				//R
-				else if((i+1)%3===1){
-					r =Math.floor((s[i]* 6/256)*36);
-				}
-				//G
-				else if((i+1)%3==2){
-					g = Math.floor((s[i] * 6/256)*6);
-				}
-				
-			}
+			});
 			
-		*/
+			
+			/**
+			 * 下拉刷新具体业务实现
+			 */
+			function pulldownRefresh() {
+				mui.toast("刷新成功");
+				setTimeout(function() {
+					
+					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+					
+				}, 1500);
+				setTimeout(function(){
+					window.location.reload();
+				},500)
+				
+			}
 		</script>
 	</body>
 </html>

@@ -161,12 +161,14 @@
 					</mu-col>
 					<mu-col span="1"></mu-col>
 				</mu-row>
-				<mu-container>
+			<mu-container>
 		</div>
 		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
 		<script src="js/main/imginput.js"></script>
 		<script src="js/main/dight.js"></script>
 		<script src="js/imgDzData/imgsdata16.js"></script>
+		<script src="js/database/getDbImgdata.js"></script>
+		<script src="js/database/db.js"></script>
 		<script>
 			var app = new Vue({
 				el: '#app',
@@ -194,13 +196,14 @@
 						'rgb(0, 0, 0)',
 					],
 					imgTags: "选择",
-					img: [{
-							id: 1,
+					img: [
+						{
+							id: 98,
 							title: '图片一',
 							data: img1Data.trim()
 						},
 						{
-							id: 2,
+							id: 99,
 							title: '图片二',
 							data: img2Data.trim()
 						}
@@ -336,7 +339,6 @@
 							if (this.imgTags == this.img[item].id) {
 								let l = this.dzInfo.length;
 								this.sendInfo += "*";
-								//this.dzInfo.push({"index":l,"data":this.img[item].data,"isImg":true});
 								this.existsImage.push({
 									"id": this.img[item].id,
 									"data": this.img[item].data,
@@ -346,6 +348,10 @@
 								console.log(this.img[item].title);
 							}
 						}
+					},
+					sendDevInfo(){
+						console.log("aaa");
+						closeDB('main');
 					}
 				},
 				computed: {
@@ -355,12 +361,15 @@
 							this.existsImage = [];
 						}
 						else{
-							let gs = 0;
+							let imgN = 0;
 							for (var i = 0; i < this.sendInfo.length; i++) {
 								if(this.sendInfo[i]=='*'){
-									console.log(i);
+									imgN++;
 								}
-							}						
+							}		
+							if(imgN<this.existsImage.length){
+								this.existsImage.length = imgN;
+							}
 						}
 					
 						
@@ -391,6 +400,7 @@
 
 			}
 			app.updateDz();
+			openDB();
 		</script>
 	</body>
 </html>
