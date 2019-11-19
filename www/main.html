@@ -10,7 +10,7 @@
 		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 		<script type="text/javascript" src="js/update.js"></script>
 		<link rel="stylesheet" href="css/main.css" />
-		<script src="js/ble.js"></script>
+		<script src="js/bluetooth/BluetoothTool.js"></script>
 		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
 		<!--Muse-UI框架引入-->
 		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
@@ -126,9 +126,9 @@
 				<span>页面特效以及模式选择</span>
 				<mu-container class="button-wrapper">
 					<el-row style="margin-top: 0.5rem;">
-						<el-button type="warning" size="mini">&nbsp;&nbsp;1&nbsp;&nbsp;</el-button>
-						<el-button type="warning" size="mini">&nbsp;&nbsp;2&nbsp;&nbsp;</el-button>
-						<el-button type="warning" size="mini">&nbsp;&nbsp;3&nbsp;&nbsp;</el-button>
+						<el-button type="warning" size="mini" @click="write()">&nbsp;&nbsp;1&nbsp;&nbsp;</el-button>
+						<el-button type="warning" size="mini" @click="button2()">&nbsp;&nbsp;2&nbsp;&nbsp;</el-button>
+						<el-button type="warning" size="mini" @click="button3()">&nbsp;&nbsp;3&nbsp;&nbsp;</el-button>
 						<el-button type="warning" size="mini">&nbsp;&nbsp;4&nbsp;&nbsp;</el-button>
 					</el-row>
 					<el-row style="margin-top: 0.5rem;">
@@ -170,11 +170,13 @@
 		<script src="js/database/getDbImgdata.js"></script>
 		<script src="js/database/db.js"></script>
 		<script>
+
 			var app = new Vue({
 				el: '#app',
 				data: {
 					dzInfo: [],
 					sendInfo: '你好',
+					sendDevData : '',
 					active: 0,
 					devname: '无连接',
 					fontSize: 16,
@@ -198,12 +200,12 @@
 					imgTags: "选择",
 					img: [
 						{
-							id: 98,
+							id: 998,
 							title: '图片一',
 							data: img1Data.trim()
 						},
 						{
-							id: 99,
+							id: 999,
 							title: '图片二',
 							data: img2Data.trim()
 						}
@@ -235,7 +237,7 @@
 							let imgNumber = 0;
 							for (var i = 0; i < this.sendInfo.length; i++) {
 
-								if (this.sendInfo[i] != "*") {
+								if (this.sendInfo[i] != "✿") {
 									this.showDZ(this.sendInfo[i], i);
 								} 
 								else {
@@ -255,7 +257,7 @@
 							},
 
 							function(data, status) {
-								console.log("SCUUSE! TEXT:"+text+" I:"+indexOfdz);
+								//console.log("SCUUSE! TEXT:"+text+" I:"+indexOfdz);
 								
 								var srt = JSON.parse(data);
 
@@ -338,32 +340,69 @@
 						for (let item in this.img) {
 							if (this.imgTags == this.img[item].id) {
 								let l = this.dzInfo.length;
-								this.sendInfo += "*";
+								this.sendInfo += "✿";
 								this.existsImage.push({
 									"id": this.img[item].id,
 									"data": this.img[item].data,
 									"index": l
 								});
+								this.dzInfo.push({
+									"index": this.dzInfo.length,
+									"data": this.img[item].data,
+									"isImg": true
+								})
 								this.showImg(this.img[item].data, l);
 								console.log(this.img[item].title);
 							}
 						}
 					},
 					sendDevInfo(){
-						console.log("aaa");
+						this.dzInfo.forEach(item => {
+							let hex16data = "";
+							
+							for (var i = 0; i < item.data.length/8; i++) {
+								
+							var zero = '0x00';
+							
+							let hex16 = parseInt(item.data.substr(i*8,8), 2).toString(16);
+							
+							var tmp = 4 - hex16.length;
+							
+							hex16 = zero.substr(0, tmp) + hex16;
+							
+							
+								console.log(hex16);
+							}
+							
+							//alert(hex16data);
+						})
+						
 						closeDB('main');
+					},
+					write(){
+						console.log("开始向蓝牙写入数据！");
+						 disConnDevice()
+					},
+					button2(){
+						//turnOffBluetooth();
+						onSendData()
+						readData();
+					},
+					button3(){
+						createConnection("D8:A9:8B:78:87:1A")
+						//connDevice();
 					}
 				},
 				computed: {
 					inputLength: function() {
 						
-						if(this.sendInfo.indexOf('*')==-1){
+						if(this.sendInfo.indexOf('✿')==-1){
 							this.existsImage = [];
 						}
 						else{
 							let imgN = 0;
 							for (var i = 0; i < this.sendInfo.length; i++) {
-								if(this.sendInfo[i]=='*'){
+								if(this.sendInfo[i]=='✿'){
 									imgN++;
 								}
 							}		
