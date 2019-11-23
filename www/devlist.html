@@ -91,12 +91,12 @@
 					loading2: false
 				},
 				methods: {
-					getDev(dev) {
-						
+					getDev(dev) {	
 						window.localStorage.setItem("name", dev.name);
 						window.localStorage.setItem("id", dev.deviceId);
 						window.localStorage.setItem("server", dev.advertisServiceUUIDs);
 						window.location.href = "main.html";
+						stopBluetoothDiscovery();
 					},
 					loading() {
 						this.loading2 = true;

@@ -115,6 +115,13 @@
 						</mu-container>
 					</mu-expansion-panel>
 					
+					<mu-expansion-panel :expand="panel === 'panel12'" @change="jumpView('test.html')">
+						<div slot="header" class="item"><span><i class="fa fa-folder-o"></i> 图片管理</span></div>
+						<mu-container>
+							正在跳转
+						</mu-container>
+					</mu-expansion-panel>
+					
 					<mu-expansion-panel :expand="panel === 'panel5'" @change="jumpView('music.html')">
 						<div slot="header" class="item"><span><i class="fa  fa-music"></i> 音乐同步</span></div>
 						<mu-container>
@@ -164,12 +171,7 @@
 						</mu-container>
 					</mu-expansion-panel>
 					
-					<mu-expansion-panel :expand="panel === 'panel12'" @change="jumpView('test.html')">
-						<div slot="header" class="item"><span><i class="fa  fa-question"></i> Sqlite测试</span></div>
-						<mu-container>
-							正在跳转
-						</mu-container>
-					</mu-expansion-panel>
+
 					
 				</mu-list>
 			</mu-paper>

@@ -3,6 +3,9 @@
  * @Description: html+ 串口蓝牙操作
  * @date 2019/10/12
  */
+
+
+
 var BluetoothAdapter = null;
 var Intent = null;
 var IntentFilter = null;
@@ -28,8 +31,9 @@ document.addEventListener("plusready", function() {
 	onPlusReady();
 	turnOnBluetooth();
 	initBluetooth();
-	discoveryNewDevice()
-	getPairedDevices()
+	discoveryNewDevice();
+	getPairedDevices();
+		//readData();
 }, false);
 // 扩展API加载完毕，现在可以正常调用扩展API
 function onPlusReady() {
@@ -96,7 +100,7 @@ function bluetoothInit() {
  * 蓝牙状态赋值
  */
 function init() {
-	console.log("蓝牙状态" + JSON.stringify(state));
+	//console.log("蓝牙状态" + JSON.stringify(state));
 }
 
 /**
@@ -432,13 +436,14 @@ function cancelDiscovery() {
  * 发送数据
  */
 function onSendData() {
-	var sendData = "85000101010101010400";
+	var sendData = "85000101010101010400";//55 00 06 01 02 01 01 01 04 00
+
 	var valueX = new ArrayBuffer(10);
 	var iv = new Uint8Array(valueX);
-	iv[0] = 85 , iv[1] = 0;iv[2] = 1;
-	iv[2] = 1 , iv[3] = 1;iv[4] = 1;
+	iv[0] = 85 , iv[1] = 0;iv[2] = 6;
+	iv[3] = 1;  iv[4] = 2;
 	iv[5] = 1 , iv[6] = 1;iv[7] = 1;
-	iv[8] = 4 , iv[9] = 0;	
+	iv[8] = 0 , iv[9] = 20;	
 	
 	flag = true;
 	//已连接设备
@@ -493,10 +498,14 @@ function readData() {
 	});
 	// 监听低功耗蓝牙设备的特征值变化
 	plus.bluetooth.onBLECharacteristicValueChange(function(e) {
+		//console.log("已有特征值变化：" +JSON.stringify(e));
 		if (e.value != undefined) {
-			$("#receiveDataArr").html(buffer2hex(e.value));
-			$("#receiveDataStr").html(hexCharCodeToStr(buffer2hex(e.value)));
-			console.log(buffer2hex(e.value));
+			//$("#receiveDataArr").html(buffer2hex(e.value));
+			//$("#receiveDataStr").html(hexCharCodeToStr(buffer2hex(e.value)));
+			console.log("===========================================================");
+			console.log("返回信息:" + buffer2hex(e.value));
+			console.log("===========================================================");
+			app.returnData = e.value;
 		}
 	});
 }
@@ -574,4 +583,176 @@ function hexCharCodeToStr(hexCharCodeStr) {
  */
 function shortToast(msg) {
 	Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
+}
+
+
+/**
+ * 
+ * 
+ * 
+ */
+function onSendData2() {
+	var sendData = "85000101010101010400";//55 00 06 01 02 01 01 01 04 00
+
+	var valueX = new ArrayBuffer(10);
+	var iv = new Uint8Array(valueX);
+	iv[0] = 85 , iv[1] = 0;iv[2] = 6;
+	iv[3] = 1;  iv[4] = 2;
+	iv[5] = 1 , iv[6] = 1;iv[7] = 1;
+	iv[8] = 4 , iv[9] = 0;	
+	
+	flag = true;
+	//已连接设备
+	if (flag) {
+		//发送的数据不能为空
+		if (sendData !== '') {
+			plus.bluetooth.writeBLECharacteristicValue({
+				deviceId: deviceId,
+				serviceId: serviceId,
+				characteristicId: characteristicId,
+				value: valueX,
+				success: function(e) {
+					state.msg = '发送成功';
+					console.log('发送数据--success: ' + JSON.stringify(e));
+				},
+				fail: function(e) {
+					state.msg = '发送失败';
+					console.log('发送数据--failed: ' + JSON.stringify(e));
+				},
+				complete: function(e) {
+					init();
+				}
+			});
+		} else {
+			shortToast("发送失败");
+		}
+	} else {
+		shortToast("未连接设备");
+	}
+}
+
+function onSendData3() {
+	var sendData = "85000101010101010400";//55 00 06 01 02 01 01 01 04 00
+
+	var valueX = new ArrayBuffer(16);
+	var iv = new Uint8Array(valueX);
+	
+	for (var i = 0; i < 16; i++) {
+		iv[i] = i;
+	}
+//	console.log(iv.toString());
+	flag = true;
+	//已连接设备
+	if (flag) {
+		//发送的数据不能为空
+		if (sendData !== '') {
+			plus.bluetooth.writeBLECharacteristicValue({
+				deviceId: deviceId,
+				serviceId: serviceId,
+				characteristicId: characteristicId,
+				value: valueX,
+				success: function(e) {
+					state.msg = '发送成功';
+					console.log('发送数据--success: ' + JSON.stringify(e));
+				},
+				fail: function(e) {
+					state.msg = '发送失败';
+					console.log('发送数据--failed: ' + JSON.stringify(e));
+				},
+				complete: function(e) {
+					init();
+				}
+			});
+		} else {
+			shortToast("发送失败");
+		}
+	} else {
+		shortToast("未连接设备");
+	}
+}
+
+
+
+//16进制数据组发送
+function send16HexData(data,length) {
+
+	var value = new ArrayBuffer(length);
+	var iv = new Uint8Array(value);
+	
+	for (var i = 0; i < data.length; i++) {
+		
+		let dec = parseInt(data[i]) ;
+		//console.log(dec);
+		iv[i] = dec;
+	}
+	flag = true;
+	//已连接设备
+	if (flag) {
+		//发送的数据不能为空
+		if (data != null && data.length != 0) {
+			plus.bluetooth.writeBLECharacteristicValue({
+				deviceId: deviceId,
+				serviceId: serviceId,
+				characteristicId: characteristicId,
+				value: value,
+				success: function(e) {
+					state.msg = '发送成功';
+					//console.log('发送数据--success: ' + JSON.stringify(e));
+				},
+				fail: function(e) {
+					state.msg = '发送失败';
+					console.log('发送数据--failed: ' + JSON.stringify(e));
+				},
+				complete: function(e) {
+					init();
+				}
+			});
+		} 
+		else {
+			console.log('数据不存在！');
+		}
+	} else {
+		console.log('未开启！');
+	}
+}
+
+
+//10进制数据组发送
+function sendDecData(data,length) {
+
+	var value = new ArrayBuffer(length);
+	var iv = new Uint8Array(value);
+	
+	for (var i = 0; i < data.length; i++) {
+		iv[i] = data[i];
+	}
+	flag = true;
+	//已连接设备
+	if (flag) {
+		//发送的数据不能为空
+		if (data != null && data.length != 0) {
+			plus.bluetooth.writeBLECharacteristicValue({
+				deviceId: deviceId,
+				serviceId: serviceId,
+				characteristicId: characteristicId,
+				value: value,
+				success: function(e) {
+					state.msg = '发送成功';
+					console.log('发送数据--success: ' + JSON.stringify(e));
+				},
+				fail: function(e) {
+					state.msg = '发送失败';
+					console.log('发送数据--failed: ' + JSON.stringify(e));
+				},
+				complete: function(e) {
+					init();
+				}
+			});
+		} 
+		else {
+			console.log('数据不存在！');
+		}
+	} else {
+		console.log('未开启');
+	}
 }

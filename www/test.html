@@ -33,7 +33,7 @@
 						</div>
 					</mu-col>
 					<mu-col span="6">
-						<div class="grid-cell">SQL语句测试</div>
+						<div class="grid-cell">图片管理</div>
 					</mu-col>
 					<mu-col span="3">
 						<div class="grid-cell"  @click="setView()">
@@ -45,13 +45,16 @@
 			</mu-appbar>
 			
 			<div>
+				<!--
 				<mu-container>
 					命令：<mu-text-field v-model="sqlText"></mu-text-field>
 				</mu-container>	
 				<mu-container class="button-wrapper">
 				  <button  @click="sendCmd()">执行命令</button>
 				<mu-container>
-				<div style="border: #FFFFFF solid 1px;padding: 10px 20px; height: 200px;margin-top: 1.25rem;">{{result }}</div>
+					<div style="border: #FFFFFF solid 1px;padding: 10px 20px; height: 200px;margin-top: 1.25rem;">{{result }}</div>
+				-->
+			
 				<mu-list textline="two-line">
 				
 				    <mu-list-item avatar button :ripple="false" v-for="item in img">
@@ -66,7 +69,7 @@
 				      </mu-list-item-content>
 				      <mu-list-item-action>
 				        <mu-button icon @click="deleteImg(item.id)">
-				          <mu-icon value="info" ></mu-icon>
+				          <mu-icon value="delete" ></mu-icon>
 				        </mu-button>
 				      </mu-list-item-action>
 				    </mu-list-item>
@@ -146,12 +149,22 @@
 						window.location.href = "main.html";
 					},
 					deleteImg(id){
-						
+						/*
 						openNewDB('main','_doc/imgData/imgData.db');
 						executeSQL('main',"delete from imgData where id = "+id);
-						closeDB('main');
-						alert("成功删除图像！");
-						window.location.reload();
+						closeDB('main');*/
+						//alert("成功删除图像！");
+						plus.nativeUI.confirm("确认删除?", function(e){
+								console.log("Close confirm: "+e.index);
+								if(e.index==0){
+									openNewDB('main','_doc/imgData/imgData.db');
+									executeSQL('main',"delete from imgData where id = "+id);
+									closeDB('main');
+									alert("成功删除图像！");
+									window.location.reload();
+								}
+						});
+						//window.location.reload();
 					}
 				}
 			});

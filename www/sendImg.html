@@ -1,0 +1,223 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="css/devlist.css" />
+		<link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8"/>
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<!--图标框引入-->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css" />
+		<link rel="stylesheet" href="css/climacons-font.css" />
+		<link rel="stylesheet" href="css/glyphicons.css" />
+		<script src="js/bluetooth/BluetoothTool.js"></script>
+		<script src="js/mui.js"></script>
+		<style>
+			.imgShow{
+				background: #000000;
+				border: 0px #000000 solid;
+				border-radius: 5px;
+				height: 350;
+			}
+		</style>
+	</head>
+
+	<body style="background: #515151;color: #FFFFFF;">
+		
+		<div id="app">
+			<mu-appbar color="#515151">
+			
+				<mu-row gutter>
+					<mu-col span="3">
+						<div class="grid-cell">
+						</div>
+					</mu-col>
+					<mu-col span="6">
+						<div class="grid-cell">发送动画</div>
+					</mu-col>
+					<mu-col span="3">
+						<div class="grid-cell">
+							 <span >主页 <i class="fa fa-angle-right"> </i></span>
+						</div>
+					</mu-col>
+				</mu-row>
+			</mu-appbar>
+			
+			<div class="imgShow">
+				<div style="margin: auto;">
+					<canvas id="gif" width="320" height="320"></canvas>
+				</div>
+			</div>
+			
+			<mu-container>
+				<mu-row gutter>
+					<mu-col span="8">
+						<mu-select label="图片选择" chips v-model="imgTags" full-width>
+							<mu-option v-for="option,index in img" :key="option.title" :label="option.title" :value="option.id"></mu-option>
+						</mu-select>
+					</mu-col>
+					<mu-col span="4">
+						<br>
+						<mu-button color="primary" @click="sendImg()">上传图像</mu-button>
+					<mu-col />
+				</mu-row>
+			</mu-container>
+			<div>
+				{{sendTimer}}
+				<br>
+				<a href="main.html">INDEx</a>
+			</div>
+		</div>
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+		<script src="js/imgDzData/gifImgdata.js"></script>
+		<script>		
+		
+			
+			var app = new Vue({
+				el : '#app',
+				data : {
+					sendNumber : 0,
+					imgTags : '',
+					img : [
+						{
+							title : '微笑',
+							id : 1
+						},
+						{
+							title : '开心',
+							id : 2
+						}
+					]
+				},
+				methods:{
+					sendImg(){
+						
+						onSendData2();
+						readData();
+						
+						
+						var canvas = document.getElementById('gif');
+						var ctx = canvas.getContext('2d');
+						var data = KaiXinGifData;
+						ctx.clearRect(0,0,320,320);
+						
+						for (var i = 0; i < 32; i++) {
+							for (var j = 0; j < 32; j++) {
+								if(data[i*32+j]==252){
+									ctx.beginPath();
+									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
+									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fill();
+								}
+								else if(data[i*32+j]==255){
+									ctx.beginPath();
+									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
+									ctx.fillStyle = 'white';   //填充颜色
+									ctx.fill();
+								}
+								else if(data[i*32+j]==227){
+									ctx.beginPath();
+									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
+									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fill();
+								}
+								else if(data[i*32+j]==252){
+									ctx.beginPath();
+									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
+									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fill();
+								}
+								else if(data[i*32+j]==252){
+									ctx.beginPath();
+									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
+									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fill();
+								}
+								else if(data[i*32+j]==252){
+									ctx.beginPath();
+									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
+									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fill();
+								}
+								else{
+									
+								}
+							}
+						}
+						
+				
+						setTimeout(function(){
+							if(app.sendNumber<64){
+								window.timerS = setInterval(function(){
+									app.sendNumber += 1;
+									
+									var dataDuan = new Array(16);
+									
+									for (var i = 0; i < 16; i++) {
+										dataDuan[i] = data[(app.sendNumber-1)*16+i];
+									}
+									send16HexData(dataDuan,16);
+									//console.log(JSON.stringify(dataDuan));
+								},100);						
+							}	
+						},1000);
+					
+						
+						
+						
+						
+					}
+				},
+				computed:{
+					sendTimer:  function() {
+						if(this.sendNumber>=64){
+							clearInterval(window.timerS);
+							app.sendNumber = 0;
+						}
+						
+						return this.sendNumber + "R:"+ JSON.stringify(this.returnData);
+					}
+				},
+				created : function(){
+					document.addEventListener("plusready", function() {
+						//// 扩展API加载完毕，现在可以正常调用扩展API
+							createConnection("D8:A9:8B:78:87:1A");
+							//readData();
+					}, false);
+					
+				}
+			});
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: {
+						style:'circle',
+						callback: pulldownRefresh
+					}
+				}
+			});
+			/**
+			 * 下拉刷新具体业务实现
+			 */
+			function pulldownRefresh() {
+				mui.toast("刷新成功");
+				setTimeout(function() {
+					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+				}, 1500);
+				setTimeout(function(){
+					window.location.reload();
+				},500)
+				
+			}
+		</script>
+	</body>
+</html>
