@@ -67,26 +67,27 @@
 					</mu-col>
 					<mu-col span="4">
 						<br>
-						<mu-button color="primary" @click="sendImg()">上传图像</mu-button>
+						<mu-button color="primary" @click="sendImg()" :disabled="disabled">{{sendload}}</mu-button>
 					<mu-col />
 				</mu-row>
 			</mu-container>
-			<div>
+			<div style="visibility: hidden;">
 				{{sendTimer}}
-				<br>
-				<a href="main.html">INDEx</a>
 			</div>
 		</div>
+		<a href="main.html"></a>
 		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
 		<script src="js/imgDzData/gifImgdata.js"></script>
 		<script>		
-		
+
 			
 			var app = new Vue({
 				el : '#app',
 				data : {
 					sendNumber : 0,
 					imgTags : '',
+					sendload : '上传图像',
+					disabled : false,
 					img : [
 						{
 							title : '微笑',
@@ -100,11 +101,11 @@
 				},
 				methods:{
 					sendImg(){
+
 						
 						onSendData2();
 						readData();
-						
-						
+								
 						var canvas = document.getElementById('gif');
 						var ctx = canvas.getContext('2d');
 						var data = KaiXinGifData;
@@ -158,8 +159,9 @@
 						setTimeout(function(){
 							if(app.sendNumber<64){
 								window.timerS = setInterval(function(){
+									app.disabled = true;
 									app.sendNumber += 1;
-									
+									app.sendload = " "+Math.floor(app.sendNumber/64*100)+"%";
 									var dataDuan = new Array(16);
 									
 									for (var i = 0; i < 16; i++) {
@@ -169,21 +171,25 @@
 									//console.log(JSON.stringify(dataDuan));
 								},100);						
 							}	
-						},1000);
-					
-						
-						
-						
+						},1000);				
 						
 					}
 				},
 				computed:{
+
 					sendTimer:  function() {
 						if(this.sendNumber>=64){
 							clearInterval(window.timerS);
-							app.sendNumber = 0;
+							app.sendNumber = 0;	
+							setTimeout(function(){
+								sendDecData([7*16+7,0,6,1,2,1,1,1,4,0],10);
+								app.sendload = "上传图像";
+								app.disabled = false;
+							},2500);
 						}
-						
+						else{
+							
+						}
 						return this.sendNumber + "R:"+ JSON.stringify(this.returnData);
 					}
 				},

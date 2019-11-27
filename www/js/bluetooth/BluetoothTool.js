@@ -33,6 +33,7 @@ document.addEventListener("plusready", function() {
 	initBluetooth();
 	discoveryNewDevice();
 	getPairedDevices();
+	getConnectedBluetoothDevices()
 		//readData();
 }, false);
 // 扩展API加载完毕，现在可以正常调用扩展API
@@ -70,6 +71,8 @@ var characteristicId = '0000FFE1-0000-1000-8000-00805F9B34FB';
 
 // 蓝牙状态
 var state = {
+	bluetoothID: '',
+	bluetoothName : '未连接',
 	bluetoothEnable: false, //蓝牙是否开启
 	bluetoothState: false, //当前蓝牙状态
 	discoveryDeviceState: false, //是否正在搜索蓝牙设备
@@ -100,6 +103,10 @@ function bluetoothInit() {
  * 蓝牙状态赋值
  */
 function init() {
+	if(state.bluetoothState){
+		app.devname = state.bluetoothName;
+	}
+	
 	//console.log("蓝牙状态" + JSON.stringify(state));
 }
 
@@ -135,7 +142,7 @@ function turnOnBluetooth() {
 			return;
 		}
 	} else {
-		mui.toast("蓝牙已经打开");
+		//mui.toast("蓝牙已经打开");
 	}
 }
 
@@ -295,7 +302,7 @@ function clearList() {
  * 如果之前没有配对设备 需要重复执行一次
  * @param address
  */
-function createConnection(deviceId){
+function createConnection(deviceId,name){
 	plus.bluetooth.createBLEConnection({
 		deviceId:deviceId,
 		success:function(e){
@@ -303,7 +310,8 @@ function createConnection(deviceId){
 			mui.toast("连接成功");
 			state.msg = '已连接设备';
 			state.bluetoothState = true;
-			
+			state.bluetoothID = deviceId;
+			state.bluetoothName = name;
 		},
 		fail:function(e){
 			console.log('create connection failed: '+JSON.stringify(e));
@@ -368,14 +376,19 @@ function getConnectedBluetoothDevices() {
 	plus.bluetooth.getConnectedBluetoothDevices({
 		success: function(e) {
 			console.info("已连接的设备：" + JSON.stringify(e.devices));
+			
 			var name = "[ ]"
 			if (e.devices[0] != undefined && e.devices[0].deviceId != undefined) {
 				name = e.devices[0].name != undefined ? e.devices[0].name : e.devices[0].deviceId;
+				state.bluetoothID = e.devices[0].deviceId;
+				state.bluetoothName = e.devices[0].name;
 				flag = true;
 			} else {
 				flag = false;
 			}
-			shortToast("已连接的设备：" + name);
+			
+			//shortToast("已连接的设备：" + name);
+			
 		},
 		fail: function(e) {
 			console.log('连接--failed: ' + JSON.stringify(e));
@@ -433,17 +446,16 @@ function cancelDiscovery() {
 }
 
 /**
- * 发送数据
+ * 发送数据55 00 02 01 01  02 01 01 01 20
+
  */
 function onSendData() {
 	var sendData = "85000101010101010400";//55 00 06 01 02 01 01 01 04 00
 
 	var valueX = new ArrayBuffer(10);
 	var iv = new Uint8Array(valueX);
-	iv[0] = 85 , iv[1] = 0;iv[2] = 6;
-	iv[3] = 1;  iv[4] = 2;
-	iv[5] = 1 , iv[6] = 1;iv[7] = 1;
-	iv[8] = 0 , iv[9] = 20;	
+	iv[0] = 85 , iv[1] = 0;iv[2] = 2;iv[3] = 1;  iv[4] = 1;
+	iv[5] = 2 , iv[6] = 1;iv[7] = 1;iv[8] = 1 , iv[9] = 32;	
 	
 	flag = true;
 	//已连接设备
@@ -588,7 +600,7 @@ function shortToast(msg) {
 
 /**
  * 
- * 
+ * 发动图
  * 
  */
 function onSendData2() {
