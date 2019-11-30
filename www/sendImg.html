@@ -45,7 +45,7 @@
 						<div class="grid-cell">发送动画</div>
 					</mu-col>
 					<mu-col span="3">
-						<div class="grid-cell">
+						<div class="grid-cell" @click="setView()">
 							 <span >主页 <i class="fa fa-angle-right"> </i></span>
 						</div>
 					</mu-col>
@@ -85,30 +85,54 @@
 				el : '#app',
 				data : {
 					sendNumber : 0,
-					imgTags : '',
+					imgTags : 0,
 					sendload : '上传图像',
 					disabled : false,
 					img : [
 						{
-							title : '微笑',
-							id : 1
+							title : '开心',
+							id : 0,
+							data : KaiXinGifData
 						},
 						{
-							title : '开心',
-							id : 2
+							title : '运动',
+							id : 1,
+							data : JianKangImg
+						},
+						{
+							title : '篮球',
+							id : 2,
+							data : LanQiuImgData
+						},
+						{
+							title : 'WLAN',
+							id : 3,
+							data : WlanImgData
+						},
+						{
+							title : '影视',
+							id : 4,
+							data : YinShiImgData
+						},
+						{
+							title : 'S',
+							id : 5,
+							data : SSImgData
 						}
 					]
 				},
 				methods:{
-					sendImg(){
-
-						
+					setView(){
+						window.location.href = "main.html";
+					},
+					sendImg(){	
 						onSendData2();
 						readData();
 								
 						var canvas = document.getElementById('gif');
 						var ctx = canvas.getContext('2d');
-						var data = KaiXinGifData;
+						console.log(this.imgTags);
+						var data = this.img[this.imgTags].data;
 						ctx.clearRect(0,0,320,320);
 						
 						for (var i = 0; i < 32; i++) {
@@ -119,22 +143,25 @@
 									ctx.fillStyle = 'yellow';   //填充颜色
 									ctx.fill();
 								}
-								else if(data[i*32+j]==255){
+								else if(data[i*32+j]==224){
 									ctx.beginPath();
 									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
-									ctx.fillStyle = 'white';   //填充颜色
+									ctx.fillStyle = 'red';   //填充颜色
 									ctx.fill();
 								}
-								else if(data[i*32+j]==227){
+								else if(data[i*32+j]==
+								
+								
+								3){
 									ctx.beginPath();
 									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
-									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fillStyle = 'blue';   //填充颜色
 									ctx.fill();
 								}
-								else if(data[i*32+j]==252){
+								else if(data[i*32+j]==31){
 									ctx.beginPath();
 									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
-									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fillStyle = 'green';   //填充颜色
 									ctx.fill();
 								}
 								else if(data[i*32+j]==252){

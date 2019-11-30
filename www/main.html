@@ -139,14 +139,14 @@
 						<el-button type="warning" size="mini">&nbsp;&nbsp;8&nbsp;&nbsp;</el-button>
 					</el-row>
 					<el-row style="margin-top: 0.5rem;">
-						<el-button type="warning" size="mini">左移</el-button>
-						<el-button type="warning" size="mini">右移</el-button>
+						<el-button type="warning" size="mini" @click="leftmove()">左移</el-button>
+						<el-button type="warning" size="mini" @click="rightmove()">右移</el-button>
 						<el-button type="warning" size="mini">固定</el-button>
 						<el-button type="warning" size="mini">雪花</el-button>
 					</el-row>
 					<el-row style="margin-top: 0.5rem;">
-						<el-button type="warning" size="mini">上移</el-button>
-						<el-button type="warning" size="mini" style="min-width: 60px;">下移</el-button>
+						<el-button type="warning" size="mini" @click="upmove()">上移</el-button>
+						<el-button type="warning" size="mini" @click="downmove()" style="min-width: 60px;">下移</el-button>
 						<el-button type="warning" size="mini" style="min-width: 60px;">闪烁</el-button>
 						<el-button type="warning" size="mini" style="min-width: 60px;">跑马灯</el-button>
 					</el-row>
@@ -157,15 +157,14 @@
 					<mu-col span=""></mu-col>
 					<mu-col span="10">
 						<el-row>
-							<mu-button color="primary" full-width @click="sendDevInfo()">发送命令</mu-button>
+							<mu-button color="primary" full-width @click="sendDevInfo()" :disabled="disabled">{{sendTimer}}</mu-button>
 						</el-row>
 					</mu-col>
 					<mu-col span="1"></mu-col>
 				</mu-row>
 				<mu-container>
-					<div style="color: #FFFFFF;">{{sendTimer}}</div>
+				<div style="color: #FFFFFF; visibility: hidden;">{{sendTimer}}</div>
 		</div>
-
 		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
 		<script src="js/main/imginput.js"></script>
 		<script src="js/main/dight.js"></script>
@@ -183,12 +182,13 @@
 					active: 0, //切换页面变量(勿改)
 					devname : '无连接',
 					fontSize: 16, //数据的字体
-					fontStyle: '宋体', //数据的字体样式
+					fontStyle: 'hzk16s', //数据的字体样式
 					charLength: '0/50', //显示的字符串长度
-					effect: '', //特效选择接收变量                   
+					effect: '', //特效选择接收变量
+					disabled : false,
 					effectOptions: ['无', '镜像', '旋转90°', '旋转180°', '旋转270°', '旋转360°'], //特效选择
 					fontSizeOptions: [12, 14, 16], //数据的字体大小选择
-					fontStyleOptions: ['宋体', '雅黑', 'Arial', 'New Roman', 'Verdana'], //数据的字体样式选择
+					fontStyleOptions: ['hzk16f', 'hzk16s', 'hzk16l', 'hzk16h','hzk16y', 'hzk16v','HZK16C','HZK16X'], //数据的字体样式选择
 					predefineColors: [
 						'rgb(255, 255, 255)',
 						'rgb(255, 255, 0)',
@@ -200,7 +200,8 @@
 						'rgb(0, 0, 0)',
 					], //颜色选择
 					imgTags: "选择", //图片输入框选择数据
-					img: [{
+					img: [
+						{
 							id: 998,
 							title: '图片一',
 							data: img1Data.trim()
@@ -209,6 +210,11 @@
 							id: 999,
 							title: '图片二',
 							data: img2Data.trim()
+						},
+						{
+							id: 1000,
+							title: '电话',
+							data: tel1Data
 						}
 					], //图片选择数据
 					existsImage: [
@@ -225,7 +231,9 @@
 					stopNumber: 0,
 					returnData: "",
 					sendFontNumber:0,
-					sendDataHeader : [85,0,1,1,1,1,1,1,0,32]
+					sendDataHeader : [85,0,1,1,1,1,1,1,0,96],
+					sendDataEnd : [119,0,1,1,1,1,1,1,0,96],
+					moveStyle : 1
 				},
 				methods: {
 					//跳转视图
@@ -267,16 +275,30 @@
 							}
 
 						}
+						else{
+							this.dzInfo = [];
+							document.getElementById('dz').innerHTML = "";
+						}
 
 					},
 
 					//显示字体点阵信息
 					showDZ(text, indexOfdz) {
 						var dataArray = [];
-
-						$.post("http://47.106.254.86:1234/server1.php", {
-								txt: text,
-							},
+						var url = '';
+						if(this.fontSize==16){
+							url = 'http://47.106.254.86:1234/server1.php';
+						}
+						else if(this.fontSize==14){
+							url = 'http://47.106.254.86:1234/server3.php';
+						}
+						else if(this.fontSize==12){
+							url = 'http://47.106.254.86:1234/server4.php';
+						}
+						else{
+							url = 'http://47.106.254.86:1234/server1.php';
+						}
+						$.post(url, {txt: text,font: app.fontStyle},
 
 							function(data, status) {
 
@@ -389,24 +411,45 @@
 					},
 					//发送信息
 					sendDevInfo() {
-						this.stopNumber = this.dzInfo.length*6;
-						setTimeout(function(){
-						app.sendDataHeader[9] = app.stopNumber*16;
-						console.log(JSON.stringify(app.sendDataHeader));
-						//sendDecData([85,0,1,1,1,2,1,1,0,96],10);
-						//console.log("====已发送头部数据:"+JSON.stringify(app.metaDataHeader)+"=====");
-						//send16HexData(app.metaDataHeader,10);
+						closeDB();
+						this.disabled = true;
+						app.stopNumber = (app.dzInfo.length*32+app.moveStyle*64)/16;
+						
+						if(app.stopNumber<256){
+							app.sendDataHeader[9] = app.dzInfo.length*32+app.moveStyle*64;
+							app.sendDataEnd[9] = app.dzInfo.length*32+app.moveStyle*64;	
+						}
+						else{
+							let GW = Math.floor(app.dzInfo.length*32+app.moveStyle*64/256);
+							let DW = app.moveStyle % 256;	
+							app.sendDataHeader[8] = GW;
+							app.sendDataEnd[8] = GW;	
+							app.sendDataHeader[9] = DW;
+							app.sendDataEnd[9] = DW;	
 							
+						}
+						
+						console.log("START:"+JSON.stringify(app.sendDataHeader));
+						
+						setTimeout(function(){
+							sendDecData(app.sendDataHeader,10);
+							readData();
 							setTimeout(function(){
-								var fontData = [];
 								var metaData = [];
-					
-								app.dzInfo.forEach(item => {
-									
+								var sendMetaData = [];
+								if(app.moveStyle==2){
+									for (var i = 0; i < 64; i++) {
+										metaData[i] = 0;
+									}
+								}
+								else{
 									for (var i = 0; i < 32; i++) {
 										metaData[i] = 0;
 									}
-									
+								}
+								
+								app.dzInfo.forEach(item => {
+
 									let data = new Array();
 								
 									for (var i = 0; i < item.data.length / 8; i++) {
@@ -430,83 +473,102 @@
 											metaData.push(data[i]);
 										}
 									}
-									
+						
+								});
+								
+								if(app.moveStyle==2){
+									for (var i = 0; i < 64; i++) {
+										metaData.push(0);
+									}
+								}
+								else{
 									for (var i = 0; i < 32; i++) {
 										metaData.push(0);
 									}
-									
-									fontData.push(metaData);
-									metaData = [];
-									
-								});
+								}
 								
-							
-								console.log(JSON.stringify(fontData));
+								console.log(JSON.stringify(metaData));
 								
-								window.sfd = setInterval(function(){
-									var count = 0;
-	
-										let datas = [];
-										for (var i = 0; i < 16; i++) {
-											var col = Math.floor(app.sendFontNumber/6);
-											
-											datas[i] = fontData[col][(app.sendFontNumber%6)*16+i];
-										}
-										console.log("c:"+app.sendFontNumber+"   "+ JSON.stringify(datas));
-											
-										if(app.sendDevData<app.stopNumber){
-												app.sendFontNumber++;
-												count++;
-										}
-									
-									
-									
-									
-								},50);
+								let meta = [];
+								for (var i = 0; i < metaData.length; i++) {
+									meta.push(metaData[i]);
+									if((i+1)%16==0){
+										sendMetaData.push(meta);
+										meta = [];
+									}
+								}
 								
-							},500);
+								window.sfd = setInterval(function(){						
+									sendDecData(sendMetaData[app.sendFontNumber],16);
+									console.log("c:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]));	
+
+									if(app.sendFontNumber<app.stopNumber){
+											app.sendFontNumber++;
+											if(app.sendFontNumber==app.stopNumber){
+												setTimeout(function(){
+													console.log("END:"+JSON.stringify(app.sendDataEnd));
+													sendDecData(app.sendDataEnd,10);
+												},200)
+											}
+									}
+								},200);
+								
+							},100);
 						
-						},500);
+						},10);
 						
-						console.log();
+						
 						
 					},
 					button1() {		
-						sendDecData([85,0,1,1,1,2,1,1,0,96],10);
-						readData();
-						window.nums=0;
+						this.sendInfo = "信息一";
+						this.updateDz();
 					},
 					button2() {
-						
-						//16个0 16+16 / +16+167
-						var array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-						window.nums+=array.length;
-						sendDecData(array,16);
-						readData();
-						console.log(window.nums);
+						this.sendInfo = "信息二";
+						this.updateDz();
 					},
 					button3() {
-						//数据段1
-						var array = [144,144,136,200, 68,44,22,69, 196,68,36,36, 20,132,4,0];
-						sendDecData(array,16);
-						window.nums+=array.length;
-						readData();
-						console.log(window.nums);
+						this.sendInfo = "信息三";
+						this.updateDz();
 					},
 					button4() {
-						//数据段2
-						var array = [0,1,32,127, 32,18,2,10, 18,18,34,98, 34,2,1,0];
-						sendDecData(array,16);
-						window.nums+=array.length;
-						readData();	
-						console.log(window.nums);
+						this.sendInfo = "信息四";
+						this.updateDz();
 					},
 					button5() {
-						
+						this.sendInfo = "信息五";
+						this.updateDz();
 					},
 					button6() {
-						sendDecData([7*16+7,0,1,1,1,2,1,1,0,96],10);
-						readData();
+						this.sendInfo = "信息六";
+						this.updateDz();
+					},
+					button7(){
+						
+					},
+					button8(){
+						
+					},
+					upmove(){
+						this.moveStyle = 1;
+						this.sendDataHeader[5] = 2;
+						this.sendDataEnd[5] = 2;
+					},
+					downmove(){
+						this.moveStyle = 1;
+						this.sendDataHeader[5] = 3;
+						this.sendDataEnd[5] = 3;
+					},
+					leftmove(){
+						this.moveStyle = 2;
+						this.sendDataHeader[5] = 4;
+						this.sendDataEnd[5] = 4;
+					},
+					rightmove(){
+						this.moveStyle = 2;
+						this.sendDataHeader[5] = 5;
+						this.sendDataEnd[5] = 5;
 					}
 				},
 				computed: {
@@ -539,8 +601,15 @@
 						if(this.sendFontNumber >= this.stopNumber){
 							clearInterval(window.sfd);
 							this.sendFontNumber = 0;
+							this.stopNumber = 32;
+							this.disabled = false;
+							return "发送数据";
 						}
-						return this.sendNumber + "R:" + JSON.stringify(this.returnData);
+						else{
+							this.disabled = true;
+							return Math.floor(this.sendFontNumber/this.stopNumber*100)+"%";
+						}
+						
 					}
 				},
 
@@ -569,42 +638,7 @@
 			}
 			app.updateDz();
 			openDB();
-			/**
-			 * 
-			 * plus.nativeUI.showWaiting("正在发送中");
-						
-						setTimeout(function(){
-							var metaData = new Array();
-							
-							app.dzInfo.forEach(item => {
-							
-								let data = new Array();
-							
-								for (var i = 0; i < item.data.length / 8; i++) {
-							
-									let dec = parseInt(item.data.substr(i * 8, 8), 2);
-									data.push(dec);
-							
-								}
-								for (let i in data) {
-									if (i % 2 == 0) {
-										metaData.push(data[i]);
-									}
-								}
-								for (let i in data) {
-									if (i % 2 == 1) {
-										metaData.push(data[i]);
-									}
-								}
-								
-								send16HexData([0x10,0x10,0x10,0x88,0x88,0x4C,0x2C,0x0A,0x89,0x88,0x48,0x48,0x28,0x08,0x08,0x08],16);					
-							})
-							
-							plus.nativeUI.closeWaiting();
-						},1000);
-						
-						closeDB('main');
-			 */
+
 		</script>
 	</body>
 </html>
