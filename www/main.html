@@ -436,15 +436,30 @@
 						closeDB();
 						
 						this.disabled = true;
-						app.stopNumber = (app.dzInfo.length*32+app.moveStyle*64)/16;
-						
-						if((app.dzInfo.length*32+app.moveStyle*64)<=255){
-							app.sendDataHeader[9] = app.dzInfo.length*32+app.moveStyle*64;
-							app.sendDataEnd[9] = app.dzInfo.length*32+app.moveStyle*64;	
+						var len = 0;
+						if(app.moveStyle==1){
+							app.stopNumber = (app.dzInfo.length*32+app.moveStyle*32+64)/16;
+							
+							len  = (app.dzInfo.length*32+app.moveStyle*32+64);
+							console.log(len);
 						}
 						else{
-							let GW = Math.floor((app.dzInfo.length*32+app.moveStyle*64)/256);
-							let DW = (app.dzInfo.length*32+app.moveStyle*64) % 256;	
+							app.stopNumber = (app.dzInfo.length*32+app.moveStyle*64)/16;
+							
+							len  =  (app.dzInfo.length*32+app.moveStyle*64);
+							console.log(len);
+						}
+					
+						
+						if(len<=255){
+							app.sendDataHeader[8] = 0;
+							app.sendDataEnd[8] = 0;	
+							app.sendDataHeader[9] = len;
+							app.sendDataEnd[9] = len;	
+						}
+						else{
+							let GW = Math.floor(len/256);
+							let DW = len % 256;	
 							app.sendDataHeader[8] = GW;
 							app.sendDataEnd[8] = GW;	
 							app.sendDataHeader[9] = DW;
@@ -508,7 +523,7 @@
 									}
 								}
 								else{
-									for (var i = 0; i < 32; i++) {
+									for (var i = 0; i < 64; i++) {
 										metaData.push(0);
 									}
 								}
@@ -663,7 +678,7 @@
 						}
 						else if(this.returnData.lastIndexOf("88")==0){
 							console.log("发生错误"+this.returnData);
-							
+							window.location.reload();
 						}
 						else{
 							
