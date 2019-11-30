@@ -95,6 +95,7 @@
 					getDev(dev) {	
 						stopBluetoothDiscovery();
 						createConnection(dev.deviceId,dev.localName);
+						window.localStorage.setItem("id",dev.deviceId);
 						window.location.href = "main.html";	
 					},
 					loading() {

@@ -33,6 +33,7 @@
 		<script src="js/moblie.js"></script>
 		<script src="js/database/db.js"></script>
 		<script>
+			var abled = false;
 			document.addEventListener("plusready", function() {
 				console.log("加载成功！");			
 			},true);
@@ -43,7 +44,7 @@
 						alert("请输入图像名称！")
 					}
 					else{
-						
+						if(abled){
 							for(var i=0;i<latticeRowNumber;i++){
 								for(var j=0;j<latticeColNumber;j++){  
 									dzdata += digit[i][j];
@@ -88,12 +89,22 @@
 									}
 							});
 							alert("添加成功！可在图片管理中查看到该信息。")
+						}
+						else{
+							alert("暂不支持32位存储");
+						}
 										
 					}
 					
 					
 				}
 				function setR(r){
+					if(r==16){
+						abled = true;
+					}
+					else{
+						abled = false;
+					}
 					latticePointSize = WINDOW_WIDTH/r;
 					latticeRowNumber = Math.floor(WINDOW_HEIGHT/latticePointSize);
 					latticeColNumber = Math.floor(WINDOW_WIDTH/latticePointSize);

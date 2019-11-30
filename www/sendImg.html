@@ -149,31 +149,28 @@
 									ctx.fillStyle = 'red';   //填充颜色
 									ctx.fill();
 								}
-								else if(data[i*32+j]==
-								
-								
-								3){
+								else if(data[i*32+j]==3){
 									ctx.beginPath();
 									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
 									ctx.fillStyle = 'blue';   //填充颜色
 									ctx.fill();
 								}
+								else if(data[i*32+j]==227){
+									ctx.beginPath();
+									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
+									ctx.fillStyle = '#FF00FF';   //填充颜色
+									ctx.fill();
+								}
 								else if(data[i*32+j]==31){
 									ctx.beginPath();
 									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
-									ctx.fillStyle = 'green';   //填充颜色
+									ctx.fillStyle = '#00FFFF';   //填充颜色
 									ctx.fill();
 								}
-								else if(data[i*32+j]==252){
+								else if(data[i*32+j]==255){
 									ctx.beginPath();
 									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
-									ctx.fillStyle = 'yellow';   //填充颜色
-									ctx.fill();
-								}
-								else if(data[i*32+j]==252){
-									ctx.beginPath();
-									ctx.arc((j + 0.5) * 9, 9 * (i + 0.5), 3, 0, 2 * Math.PI, true);  //显示像素点的位置与大小 半径3 
-									ctx.fillStyle = 'yellow';   //填充颜色
+									ctx.fillStyle = 'white';   //填充颜色
 									ctx.fill();
 								}
 								else{

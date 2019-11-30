@@ -62,8 +62,9 @@ function onPlusReady() {
 	monitorIntervals.push(monitorInterval);
 }
 
-// 蓝牙设备mac地址
-var deviceId = 'D8:A9:8B:78:87:1A';
+// 蓝牙设备mac地址id
+var deviceId = window.localStorage.getItem("id");
+console.log("ID:"+deviceId);
 // 蓝牙服务ID
 var serviceId = '0000FFE0-0000-1000-8000-00805F9B34FB';
 // 蓝牙服务特征值ID
@@ -77,6 +78,7 @@ var state = {
 	bluetoothState: false, //当前蓝牙状态
 	discoveryDeviceState: false, //是否正在搜索蓝牙设备
 	readThreadState: false, //数据读取线程状态
+	data : '',
 	msg: '', //消息
 };
 
@@ -106,7 +108,6 @@ function init() {
 	if(state.bluetoothState){
 		app.devname = state.bluetoothName;
 	}
-	
 	//console.log("蓝牙状态" + JSON.stringify(state));
 }
 
@@ -502,7 +503,7 @@ function readData() {
 		},
 		fail: function(e) {
 			state.readThreadState = false;
-			console.log('readData ===== failed: ' + JSON.stringify(e));
+			console.log('readData ===== failed: ' + JSON.stringify(e) + "ID:" + deviceId );
 		},
 		complete: function(e) {
 			init();
@@ -517,7 +518,8 @@ function readData() {
 			console.log("===========================================================");
 			console.log("返回信息:" + buffer2hex(e.value));
 			console.log("===========================================================");
-			app.returnData = e.value;
+			app.returnData = buffer2hex(e.value);
+			state.data =  buffer2hex(e.value);
 		}
 	});
 }
@@ -750,7 +752,7 @@ function sendDecData(data,length) {
 				value: value,
 				success: function(e) {
 					state.msg = '发送成功';
-					console.log('发送数据--success: ' + JSON.stringify(e));
+					console.log('发送数据--success: ' + JSON.stringify(e)+"  data:"+JSON.stringify(buffer2hex(value)));
 				},
 				fail: function(e) {
 					state.msg = '发送失败';

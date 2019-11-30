@@ -105,7 +105,7 @@
 			<mu-container>
 				<mu-form :model="form" class="mu-demo-form" label-position="top" label-width="100 " auto-validate>
 					<mu-form-item prop="input" color="#FFFFFF">
-						<mu-text-field v-model="sendInfo" style="color: #FF0000;" @blur="updateDz()"></mu-text-field>
+						<mu-text-field v-model="sendInfo" style="color: #FF0000;" @blur="updateDz()"   @focus="edit()"></mu-text-field>
 					</mu-form-item>
 				</mu-form>
 			</mu-container>
@@ -135,19 +135,19 @@
 					<el-row style="margin-top: 0.5rem;">
 						<el-button type="warning" size="mini" @click="button5()">&nbsp;&nbsp;5&nbsp;&nbsp;</el-button>
 						<el-button type="warning" size="mini"  @click="button6()">&nbsp;&nbsp;6&nbsp;&nbsp;</el-button>
-						<el-button type="warning" size="mini">&nbsp;&nbsp;7&nbsp;&nbsp;</el-button>
-						<el-button type="warning" size="mini">&nbsp;&nbsp;8&nbsp;&nbsp;</el-button>
+						<el-button type="warning" size="mini" @click="button7()">&nbsp;&nbsp;7&nbsp;&nbsp;</el-button>
+						<el-button type="warning" size="mini" @click="button8()">&nbsp;&nbsp;8&nbsp;&nbsp;</el-button>
 					</el-row>
 					<el-row style="margin-top: 0.5rem;">
 						<el-button type="warning" size="mini" @click="leftmove()">左移</el-button>
 						<el-button type="warning" size="mini" @click="rightmove()">右移</el-button>
-						<el-button type="warning" size="mini">固定</el-button>
+						<el-button type="warning" size="mini" @click="staticImg()">固定</el-button>
 						<el-button type="warning" size="mini">雪花</el-button>
 					</el-row>
 					<el-row style="margin-top: 0.5rem;">
 						<el-button type="warning" size="mini" @click="upmove()">上移</el-button>
 						<el-button type="warning" size="mini" @click="downmove()" style="min-width: 60px;">下移</el-button>
-						<el-button type="warning" size="mini" style="min-width: 60px;">闪烁</el-button>
+						<el-button type="warning" size="mini" @click="shansuo()" style="min-width: 60px;">闪烁</el-button>
 						<el-button type="warning" size="mini" style="min-width: 60px;">跑马灯</el-button>
 					</el-row>
 					<mu-container>
@@ -215,6 +215,26 @@
 							id: 1000,
 							title: '电话',
 							data: tel1Data
+						},
+						{
+							id: 1001,
+							title: '电话2',
+							data: tel2Data
+						},
+						{
+							id: 1002,
+							title: '三角形1',
+							data: Shape1
+						},
+						{
+							id: 1003,
+							title: '三角形2',
+							data: Shape2
+						},
+						{
+							id: 1004,
+							title: '菱形',
+							data: Shape3
 						}
 					], //图片选择数据
 					existsImage: [
@@ -233,7 +253,8 @@
 					sendFontNumber:0,
 					sendDataHeader : [85,0,1,1,1,1,1,1,0,96],
 					sendDataEnd : [119,0,1,1,1,1,1,1,0,96],
-					moveStyle : 1
+					moveStyle : 1,
+					sendAck : false
 				},
 				methods: {
 					//跳转视图
@@ -247,15 +268,18 @@
 						window.location.href = "devlist.html";
 					},
 
+					edit(){
+						this.disabled = true;
+					},
 
 					//颜色选择触发事件
 					changeFontColor() {
 
 					},
-
+					
 					//更新点阵信息
 					updateDz() {
-
+						
 						if (this.sendInfo.length >= 1) {
 							this.dzInfo = [];
 							let imgNumber = 0;
@@ -273,15 +297,12 @@
 									imgNumber++;
 								}
 							}
-
 						}
 						else{
 							this.dzInfo = [];
 							document.getElementById('dz').innerHTML = "";
 						}
-
 					},
-
 					//显示字体点阵信息
 					showDZ(text, indexOfdz) {
 						var dataArray = [];
@@ -322,11 +343,11 @@
 
 								//数据一致显示点阵图像
 								if (app.dzInfo.length == app.sendInfo.length) {
-
+								
 									document.getElementById('dz').innerHTML = "";
-
+									
 									setTimeout(function() {
-
+										
 										for (var l = 0; l < app.dzInfo.length; l++) {
 
 											let fontData;
@@ -359,10 +380,11 @@
 											}
 											document.getElementById('dz').appendChild(canvas);
 										}
+										app.disabled = false;
 									}, 2000);
 								}
 							});
-
+								
 					},
 					//显示图像
 					showImg(data, index) {
@@ -412,28 +434,32 @@
 					//发送信息
 					sendDevInfo() {
 						closeDB();
+						
 						this.disabled = true;
 						app.stopNumber = (app.dzInfo.length*32+app.moveStyle*64)/16;
 						
-						if(app.stopNumber<256){
+						if((app.dzInfo.length*32+app.moveStyle*64)<=255){
 							app.sendDataHeader[9] = app.dzInfo.length*32+app.moveStyle*64;
 							app.sendDataEnd[9] = app.dzInfo.length*32+app.moveStyle*64;	
 						}
 						else{
-							let GW = Math.floor(app.dzInfo.length*32+app.moveStyle*64/256);
-							let DW = app.moveStyle % 256;	
+							let GW = Math.floor((app.dzInfo.length*32+app.moveStyle*64)/256);
+							let DW = (app.dzInfo.length*32+app.moveStyle*64) % 256;	
 							app.sendDataHeader[8] = GW;
 							app.sendDataEnd[8] = GW;	
 							app.sendDataHeader[9] = DW;
 							app.sendDataEnd[9] = DW;	
-							
 						}
 						
 						console.log("START:"+JSON.stringify(app.sendDataHeader));
 						
 						setTimeout(function(){
+							app.dzInfo.sort(function(a,b){
+							  return a.index-b.index;
+							});
 							sendDecData(app.sendDataHeader,10);
 							readData();
+							
 							setTimeout(function(){
 								var metaData = [];
 								var sendMetaData = [];
@@ -447,8 +473,8 @@
 										metaData[i] = 0;
 									}
 								}
-								
-								app.dzInfo.forEach(item => {
+
+								app.dzInfo.forEach((item,index)=> {
 
 									let data = new Array();
 								
@@ -486,8 +512,8 @@
 										metaData.push(0);
 									}
 								}
-								
-								console.log(JSON.stringify(metaData));
+								//-
+								//console.log(JSON.stringify(metaData));
 								
 								let meta = [];
 								for (var i = 0; i < metaData.length; i++) {
@@ -498,57 +524,74 @@
 									}
 								}
 								
-								window.sfd = setInterval(function(){						
-									sendDecData(sendMetaData[app.sendFontNumber],16);
-									console.log("c:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]));	
-
-									if(app.sendFontNumber<app.stopNumber){
+								window.sfd = setInterval(function(){	
+									if(app.sendFontNumber<app.stopNumber && app.sendAck){
+											
+											//console.log("c:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]));	
+											sendDecData(sendMetaData[app.sendFontNumber],16);
 											app.sendFontNumber++;
 											if(app.sendFontNumber==app.stopNumber){
-												setTimeout(function(){
+												
 													console.log("END:"+JSON.stringify(app.sendDataEnd));
-													sendDecData(app.sendDataEnd,10);
-												},200)
+												
+												
 											}
 									}
+									
 								},200);
 								
 							},100);
 						
-						},10);
+						},100);
 						
 						
 						
 					},
 					button1() {		
+						this.disabled = true;
 						this.sendInfo = "信息一";
 						this.updateDz();
+						
 					},
 					button2() {
+						this.disabled = true;
 						this.sendInfo = "信息二";
 						this.updateDz();
 					},
 					button3() {
+						this.disabled = true;
 						this.sendInfo = "信息三";
 						this.updateDz();
 					},
 					button4() {
+						this.disabled = true;
 						this.sendInfo = "信息四";
 						this.updateDz();
 					},
 					button5() {
+						this.disabled = true;
 						this.sendInfo = "信息五";
 						this.updateDz();
 					},
 					button6() {
+						this.disabled = true;
 						this.sendInfo = "信息六";
 						this.updateDz();
 					},
 					button7(){
-						
+						this.disabled = true;
+						this.sendInfo = "信息七";
+						this.updateDz();
 					},
 					button8(){
-						
+						this.disabled = true;
+						this.sendInfo = "信息八";
+						this.updateDz();
+					},
+					shansuo(){
+						this.moveStyle = 1;
+						app.sendDataHeader[5] = 6;
+						app.sendDataEnd[5] = 6;
 					},
 					upmove(){
 						this.moveStyle = 1;
@@ -569,12 +612,22 @@
 						this.moveStyle = 2;
 						this.sendDataHeader[5] = 5;
 						this.sendDataEnd[5] = 5;
-					}
+					},
+					staticImg(){
+						this.moveStyle = 1;
+						this.sendDataHeader[5] = 1;
+						this.sendDataEnd[5] = 1;
+					},
 				},
 				computed: {
 					//输入框监听,删除特殊符号去除缓存中的最后一个,所以按照顺序删除
 					inputLength: function() {
 
+						if(this.sendInfo.length>20){
+							this.sendInfo = "";
+						}
+			
+						
 						if (this.sendInfo.indexOf('✿') == -1) {
 							this.existsImage = [];
 						} else {
@@ -590,12 +643,35 @@
 						}
 
 
-						return this.sendInfo.length + "/50";
+						return this.sendInfo.length + "/20";
 					},
 					sendTimer: function() {
+						
+						if(this.returnData.lastIndexOf("56")==0){
+							console.log("头部信息接收成功!"+this.returnData);
+							this.sendAck = true;
+						}
+						else if(this.returnData.lastIndexOf("66")==0){
+							console.log("信息输入成功!"+this.returnData);
+							sendDecData(this.sendDataEnd,10);
+						}
+						else if(this.returnData.lastIndexOf("76")==0){
+							console.log("数据发送成功!"+this.returnData);
+							this.sendAck = false;
+							this.disabled = false;
+							return "发送数据";
+						}
+						else if(this.returnData.lastIndexOf("88")==0){
+							console.log("发生错误"+this.returnData);
+							
+						}
+						else{
+							
+						}
+						
+						
 						if (this.sendNumber >= 64) {
 							clearInterval(window.timerS);
-							//send16HexData([0x77,0x00,0x06,0x01,0x02,0x01,0x01,0x01,0x04,0x00],10);
 							app.sendNumber = 0;
 						}
 						if(this.sendFontNumber >= this.stopNumber){

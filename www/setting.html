@@ -56,27 +56,27 @@
 							<div class="wh-set">
 								<mu-row gutter>
 									<mu-col span="6">
-										<div class="grid-cell devagr">12xN</div>
+										<div class="grid-cell" @click="setWH(12,'N')">12xN</div>
 									</mu-col>
 									<mu-col span="6">
-										<div class="grid-cell">16xN</div>
-									</mu-col>
-								</mu-row>
-							</div>
-							<div class="wh-set">
-								<mu-row gutter>
-									<mu-col span="6">
-										<div class="grid-cell">32x32</div>
-									</mu-col>
-									<mu-col span="6">
-										<div class="grid-cell">40x48</div>
+										<div class="grid-cell"  @click="setWH(16,'N')">16xN</div>
 									</mu-col>
 								</mu-row>
 							</div>
 							<div class="wh-set">
 								<mu-row gutter>
 									<mu-col span="6">
-										<div class="grid-cell">24x24</div>
+										<div class="grid-cell"  @click="setWH(32,32)">32x32</div>
+									</mu-col>
+									<mu-col span="6">
+										<div class="grid-cell"  @click="setWH(40,48)">40x48</div>
+									</mu-col>
+								</mu-row>
+							</div>
+							<div class="wh-set">
+								<mu-row gutter>
+									<mu-col span="6">
+										<div class="grid-cell"  @click="setWH(24,24)">24x24</div>
 									</mu-col>
 									<mu-col span="6">
 										<div class="grid-cell"></div>
@@ -87,7 +87,6 @@
 						</mu-container>
 
 					</mu-expansion-panel>
-
 
 					<mu-expansion-panel :expand="panel === 'panel2'" @change="toggle('panel2')">
 						<div slot="header" class="item"><span><i class="fa fa-tachometer"></i> 设置速度</span></div>
@@ -197,6 +196,9 @@
 					},
 					indexView() {
 						window.location.href = 'main.html';
+					},
+					setWH(w,h){
+						mui.toast('已设置为'+w+"x"+h);
 					}
 				}
 			})
