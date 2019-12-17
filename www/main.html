@@ -179,11 +179,12 @@
 					dzInfo: [], //保存的点阵数据
 					sendInfo: '你', //输入框显示数据
 					sendDevData: '', //发送的设备数据(暂无用)
+					colors:[{rgba:"",style:""}],  //每个数据的颜色集合
 					active: 0, //切换页面变量(勿改)
 					devname : '无连接',
 					fontSize: 16, //数据的字体
 					fontStyle: 'hzk16s', //数据的字体样式
-					charLength: '0/50', //显示的字符串长度
+					charLength: '0/20', //显示的字符串长度
 					effect: '', //特效选择接收变量
 					disabled : false,
 					effectOptions: ['无', '镜像', '旋转90°', '旋转180°', '旋转270°', '旋转360°'], //特效选择
@@ -245,7 +246,7 @@
 					},
 					inputStyle: { //背景色与字体色
 						background: '#000000',
-						color: 'red'
+						color: 'rgba(255, 0, 0, 1)'
 					},
 					sendNumber: 0,
 					stopNumber: 0,
@@ -274,25 +275,27 @@
 
 					//颜色选择触发事件
 					changeFontColor() {
-
+						//console.log(this.inputStyle.color);
 					},
 					
 					//更新点阵信息
 					updateDz() {
 						
 						if (this.sendInfo.length >= 1) {
+					
 							this.dzInfo = [];
 							let imgNumber = 0;
 							for (var i = 0; i < this.sendInfo.length; i++) {
 
 								if (this.sendInfo[i] != "✿") {
-									this.showDZ(this.sendInfo[i], i);
+									this.showDZ(this.sendInfo[i], i,this.colors);
 								} else {
 									//console.log(this.existsImage[imgNumber].data);
 									this.dzInfo.push({
 										"index": i,
 										"data": this.existsImage[imgNumber].data,
-										"isImg": true
+										"isImg": true,
+										"color" : ""
 									});
 									imgNumber++;
 								}
@@ -304,7 +307,8 @@
 						}
 					},
 					//显示字体点阵信息
-					showDZ(text, indexOfdz) {
+					showDZ(text, indexOfdz,colors) {
+						console.log(JSON.stringify(colors));
 						var dataArray = [];
 						var url = '';
 						if(this.fontSize==16){
@@ -338,7 +342,8 @@
 								app.dzInfo.push({
 									"index": indexOfdz,
 									"data": fontData,
-									"isImg": false
+									"isImg": false,
+									"color": colors[indexOfdz].value
 								});
 
 								//数据一致显示点阵图像
@@ -371,7 +376,8 @@
 													if (fontData[i * 16 + j] == "1") {
 														ctx2.beginPath();
 														ctx2.arc((j + 0.5) * 6, 6 * (i + 0.5), 3, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
-														ctx2.fillStyle = app.inputStyle.color; //填充颜色
+														ctx2.fillStyle = colors[l].rgba; //填充颜色
+														
 														ctx2.fill();
 													} else {
 
@@ -388,6 +394,7 @@
 					},
 					//显示图像
 					showImg(data, index) {
+						this.updateDz();
 						var canvas = document.createElement('canvas');
 						var ctx2 = canvas.getContext('2d');
 						canvas.width = 96;
@@ -398,7 +405,7 @@
 								if (data[i * 16 + j] == "1") {
 									ctx2.beginPath();
 									ctx2.arc((j + 0.5) * 6, 6 * (i + 0.5), 3, 0, 2 * Math.PI, true);
-									ctx2.fillStyle = app.inputStyle.color;
+									ctx2.fillStyle = this.colors[index].rgba;
 									ctx2.fill();
 								} else {
 
@@ -424,7 +431,8 @@
 								this.dzInfo.push({
 									"index": this.dzInfo.length,
 									"data": this.img[item].data,
-									"isImg": true
+									"isImg": true,
+									"color": this.inputStyle.color
 								})
 								//更新显示
 								this.showImg(this.img[item].data, l);
@@ -656,8 +664,46 @@
 								this.existsImage.length = imgN;
 							}
 						}
-
-
+						//每个字体颜色
+						
+						if(this.sendInfo.length>=0){
+							//this.colors[this.sendInfo.length] = this.inputStyle.color;
+							for (var i = 0; i < this.sendInfo.length; i++) {
+								if(this.colors[i].rgba==""){
+									this.colors[i].rgba=this.inputStyle.color;
+								}
+								if(this.colors[i].rgba=="rgba(255, 0, 0, 1)"){
+									this.colors[i].value = 224;
+								}
+								else if(this.colors[i].rgba=="rgba(0, 255, 0, 1)"){
+									this.colors[i].value = 28;
+								}
+								else if(this.colors[i].rgba=="rgba(0, 0, 255, 1)"){
+									this.colors[i].value = 3;
+								}
+								else if(this.colors[i].rgba=="rgba(255, 255, 0, 1)"){
+									this.colors[i].value = 252;
+								}
+								else if(this.colors[i].rgba=="rgba(255, 0, 255, 1)"){
+									this.colors[i].value = 227;
+								}
+								else if(this.colors[i].rgba=="rgba(0, 255, 255, 1)"){
+									this.colors[i].value = 31;
+								}
+								else if(this.colors[i].rgba=="rgba(255, 255, 255, 1)"){
+									this.colors[i].value = 255;
+								}
+							}
+							for (var i = 0; i < this.colors.length; i++) {
+								if(i>=this.sendInfo.length){
+									this.colors[i].rgba="";
+									this.colors[i].value = 0;
+								}
+							}
+						}
+						
+						
+						
 						return this.sendInfo.length + "/20";
 					},
 					sendTimer: function() {
@@ -703,7 +749,11 @@
 						
 					}
 				},
-
+				mounted() {
+					for (var i = 0; i < 20; i++) {
+						this.colors.push({"rgba":"","value":0})
+					}
+				}
 			});
 			mui.init({
 				pullRefresh: {
