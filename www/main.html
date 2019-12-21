@@ -308,7 +308,7 @@
 					},
 					//显示字体点阵信息
 					showDZ(text, indexOfdz,colors) {
-						console.log(JSON.stringify(colors));
+						//console.log(JSON.stringify(colors));
 						var dataArray = [];
 						var url = '';
 						if(this.fontSize==16){
@@ -446,19 +446,22 @@
 						this.disabled = true;
 						var len = 0;
 						if(app.moveStyle==1){
-							app.stopNumber = (app.dzInfo.length*32+app.moveStyle*32+64)/16;
+							//数据段数,分段发送,每段16字节
+							app.stopNumber = (app.dzInfo.length*32)/16;
 							
-							len  = (app.dzInfo.length*32+app.moveStyle*32+64);
+							//字节数
+							len  = app.dzInfo.length*32;
+							
 							console.log(len);
 						}
 						else{
-							app.stopNumber = (app.dzInfo.length*32+app.moveStyle*64)/16;
+							app.stopNumber = (app.dzInfo.length*32)/16;
 							
-							len  =  (app.dzInfo.length*32+app.moveStyle*64);
+							len  =  app.dzInfo.length*32;
 							console.log(len);
 						}
 					
-						
+						//超过255字节处理,数据段处理
 						if(len<=255){
 							app.sendDataHeader[8] = 0;
 							app.sendDataEnd[8] = 0;	
@@ -480,23 +483,15 @@
 							app.dzInfo.sort(function(a,b){
 							  return a.index-b.index;
 							});
+							//发送数据头
 							sendDecData(app.sendDataHeader,10);
 							readData();
 							
 							setTimeout(function(){
 								var metaData = [];
 								var sendMetaData = [];
-								if(app.moveStyle==2){
-									for (var i = 0; i < 64; i++) {
-										metaData[i] = 0;
-									}
-								}
-								else{
-									for (var i = 0; i < 32; i++) {
-										metaData[i] = 0;
-									}
-								}
-
+							
+							    //数据处理方式由8位2进制转10进制
 								app.dzInfo.forEach((item,index)=> {
 
 									let data = new Array();
@@ -511,6 +506,7 @@
 										
 									}
 									
+									//应对硬件数据格式处理
 									for (let i in data) {
 										if (i % 2 == 0) {
 											metaData.push(data[i]);
@@ -525,39 +521,35 @@
 						
 								});
 								
-								if(app.moveStyle==2){
-									for (var i = 0; i < 64; i++) {
-										metaData.push(0);
-									}
-								}
-								else{
-									for (var i = 0; i < 64; i++) {
-										metaData.push(0);
-									}
-								}
-								//-
+								
 								//console.log(JSON.stringify(metaData));
 								
+								//将数据封装成16字节每段的数据
 								let meta = [];
 								for (var i = 0; i < metaData.length; i++) {
+									if(i%32==0){
+										metaData[i] = app.colors[i/32]["value"];
+										console.log("Color:"+ metaData[i]+ " "+ app.colors[i/32]["rgba"]);
+									}
 									meta.push(metaData[i]);
 									if((i+1)%16==0){
 										sendMetaData.push(meta);
+										console.log(JSON.stringify(meta));
 										meta = [];
 									}
 								}
 								
+									
+								
+								//发送数据
 								window.sfd = setInterval(function(){	
+									//当数据没有返回,并且没有返回信息继续发送
 									if(app.sendFontNumber<app.stopNumber && app.sendAck){
-											
-											//console.log("c:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]));	
+											console.log("c:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]));	
 											sendDecData(sendMetaData[app.sendFontNumber],16);
 											app.sendFontNumber++;
 											if(app.sendFontNumber==app.stopNumber){
-												
-													console.log("END:"+JSON.stringify(app.sendDataEnd));
-												
-												
+												console.log("END:"+JSON.stringify(app.sendDataEnd));	
 											}
 									}
 									
@@ -673,25 +665,25 @@
 									this.colors[i].rgba=this.inputStyle.color;
 								}
 								if(this.colors[i].rgba=="rgba(255, 0, 0, 1)"){
-									this.colors[i].value = 224;
+									this.colors[i].value = 0;
 								}
 								else if(this.colors[i].rgba=="rgba(0, 255, 0, 1)"){
-									this.colors[i].value = 28;
+									this.colors[i].value = 1;
 								}
 								else if(this.colors[i].rgba=="rgba(0, 0, 255, 1)"){
-									this.colors[i].value = 3;
+									this.colors[i].value = 2;
 								}
 								else if(this.colors[i].rgba=="rgba(255, 255, 0, 1)"){
-									this.colors[i].value = 252;
+									this.colors[i].value = 3;
 								}
 								else if(this.colors[i].rgba=="rgba(255, 0, 255, 1)"){
-									this.colors[i].value = 227;
+									this.colors[i].value = 4;
 								}
 								else if(this.colors[i].rgba=="rgba(0, 255, 255, 1)"){
-									this.colors[i].value = 31;
+									this.colors[i].value = 5;
 								}
 								else if(this.colors[i].rgba=="rgba(255, 255, 255, 1)"){
-									this.colors[i].value = 255;
+									this.colors[i].value = 6;
 								}
 							}
 							for (var i = 0; i < this.colors.length; i++) {
@@ -727,7 +719,7 @@
 							window.location.reload();
 						}
 						else{
-							
+							console.log("未知错误"+this.returnData);
 						}
 						
 						

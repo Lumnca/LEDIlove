@@ -25,7 +25,7 @@
 var WINDOW_WIDTH = document.body.clientWidth;
 var WINDOW_HEIGHT= document.body.clientWidth;
 
-console.log(WINDOW_WIDTH+":"+ WINDOW_HEIGHT);
+//console.log(WINDOW_WIDTH+":"+ WINDOW_HEIGHT);
 /*
 *
 *点阵像素点的长宽，单位px,使用偶数精确度更高。取值10左右
@@ -131,11 +131,7 @@ function renderDigit(cxt){
 				cxt.fillStyle="rgb(100,102,100)";
 				cxt.beginPath();
 				cxt.fillStyle="#757575";
-				/*
-				cxt.fillRect(latticePointSize*(j),(i)*latticePointSize,latticePointSize,latticePointSize);
 				
-				cxt.closePath();
-				cxt.fill();*/
 				cxt.arc(latticePointSize*(j)+latticePointSize/2,(i)*latticePointSize+latticePointSize/2,latticePointSize/2,0,2*Math.PI);
 				cxt.stroke();
 				
@@ -144,11 +140,7 @@ function renderDigit(cxt){
 			else{
 				cxt.beginPath();
 				cxt.fillStyle="red";
-				/*
-				cxt.fillRect(latticePointSize*(j),(i)*latticePointSize,latticePointSize,latticePointSize);
 				
-				cxt.closePath();
-				cxt.fill();*/
 				cxt.arc(latticePointSize*(j)+latticePointSize/2,(i)*latticePointSize+latticePointSize/2,latticePointSize/2,0,2*Math.PI);
 				cxt.stroke();
 				

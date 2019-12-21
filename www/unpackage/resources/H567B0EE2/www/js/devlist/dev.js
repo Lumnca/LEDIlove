@@ -34,7 +34,6 @@ document.addEventListener('plusready', function(e) {
 		document.addEventListener("plusready", plusReady, false); //执行返回
 	}
 
-
 	//打开蓝牙
 	plus.bluetooth.openBluetoothAdapter({
 		success: function(e) {
@@ -121,3 +120,24 @@ function createConnection(deviceId){
 	});
 }
 
+
+
+// 结束搜索蓝牙
+function stopBluetoothDiscovery(){
+	plus.bluetooth.stopBluetoothDevicesDiscovery({
+		success:function(e){
+			console.log('stop discovery success: '+JSON.stringify(e));
+			plus.bluetooth.closeBluetoothAdapter({
+				success:function(e){
+					console.log('close success: '+JSON.stringify(e));
+				},
+				fail:function(e){
+					console.log('close failed: '+JSON.stringify(e));
+				}
+			});
+		},
+		fail:function(e){
+			console.log('stop discovery failed: '+JSON.stringify(e));
+		}
+	});
+}

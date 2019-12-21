@@ -114,7 +114,7 @@ function getServices(deviceId) {
 		deviceId: deviceId,
 		success: function(e) {
 			var services = e.services;
-			console.log('get services success: ' + services.length);
+			console.log('----------------------------------get services success:--------------------------------------- ' + services.length);
 			for (var i in services) {
 				console.log(i + ': ' + JSON.stringify(services[i]));
 				getCharacteristics(id, services[i].uuid);
@@ -134,7 +134,7 @@ function getCharacteristics(deviceId, serviceId) {
 		serviceId: serviceId,
 		success: function(e) {
 			var characteristics = e.characteristics;
-			console.log('get characteristics success: ' + characteristics.length);
+			console.log('--------------------get characteristics success:--------------------- ' + characteristics.length);
 			for (var i in characteristics) {
 				console.log(i + ': ' + JSON.stringify(characteristics[i]));
 			}

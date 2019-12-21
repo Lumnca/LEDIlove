@@ -21,6 +21,7 @@
 		<link rel="stylesheet" href="css/font-awesome.min.css" />
 		<link rel="stylesheet" href="css/climacons-font.css" />
 		<link rel="stylesheet" href="css/glyphicons.css" />
+		<script src="js/bluetooth/BluetoothTool.js"></script>
 		<script src="js/mui.js"></script>
 		<script src="js/update.js" type="text/javascript" charset="utf-8"></script>
 		<style>
@@ -91,12 +92,11 @@
 					loading2: false
 				},
 				methods: {
-					getDev(dev) {
-						
-						window.localStorage.setItem("name", dev.name);
-						window.localStorage.setItem("id", dev.deviceId);
-						window.localStorage.setItem("server", dev.advertisServiceUUIDs);
-						window.location.href = "main.html";
+					getDev(dev) {	
+						stopBluetoothDiscovery();
+						createConnection(dev.deviceId,dev.localName);
+						window.localStorage.setItem("id",dev.deviceId);
+						window.location.href = "main.html";	
 					},
 					loading() {
 						this.loading2 = true;
