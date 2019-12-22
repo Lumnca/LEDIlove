@@ -342,10 +342,11 @@
 									var hex = parseInt(item, 16).toString(2);
 									var tmp = 8 - hex.length;
 									dataArray.push(zero.substr(0, tmp) + hex);
+									
 								});
 
 								var fontData = dataArray.join('');
-
+							
 								//添加单个点阵信息
 								app.dzInfo.push({
 									"index": indexOfdz,
@@ -476,10 +477,8 @@
 						this.disabled = true;
 						var len = 0;
 						
-						//数据段数,分段发送,每段16字节
-						app.stopNumber = (app.dzInfo.length*32)/16;
-						//字节数
-						len  = app.dzInfo.length*32;
+						
+						
 						//汉字字数
 						app.sendDataHeader[7] = app.dzInfo.length;	
 						app.sendDataEnd[7] = app.dzInfo.length;	
@@ -487,11 +486,19 @@
 						if(app.fontSize!=16){
 							app.sendDataHeader[6] =0;
 							app.sendDataEnd[6] = 0;	
+							//字节数
+							len  = app.dzInfo.length*128;
+							//数据段数,分段发送,每段16字节
+							app.stopNumber = len/16;
 						}
 						else{
 							app.sendDataHeader[6] =1;
 							app.sendDataEnd[6] = 1;	
+							len  = app.dzInfo.length*32;
+							//数据段数,分段发送,每段16字节
+							app.stopNumber = len/16;
 						}
+						console.log(app.stopNumber);
 						//超过255字节处理,数据段处理
 						if(len<=255){
 							app.sendDataHeader[8] = 0;
@@ -526,34 +533,60 @@
 								app.dzInfo.forEach((item,index)=> {
 
 									let data = new Array();
-								
+									console.log(item.data.length / 8);
 									for (var i = 0; i < item.data.length / 8; i++) {
 								
 										let rtl = item.data.substr(i * 8, 8).split("").reverse().join("");
+										//console.log(rtl);
 										
 										let dec = parseInt(rtl, 2);
 										
 										data.push(dec);
 										
 									}
-									
 									//应对硬件数据格式处理
-									for (let i in data) {
-										if (i % 2 == 0) {
-											metaData.push(data[i]);
-										}
-									}	
+									if(app.fontSize==16){
 										
-									for (let i in data) {
-										if (i % 2 == 1) {
-											metaData.push(data[i]);
+										for (let i in data) {
+											if (i % 2 == 0) {
+												metaData.push(data[i]);
+											}
+										}	
+											
+										for (let i in data) {
+											if (i % 2 == 1) {
+												metaData.push(data[i]);
+											}
+										}
+									}
+									else{
+										for (let i in data) {
+											if (i % 4 == 0) {
+												metaData.push(data[i]);
+											}
+										}	
+											
+										for (let i in data) {
+											if (i % 4 == 1) {
+												metaData.push(data[i]);
+											}
+										}
+										for (let i in data) {
+											if (i % 4 == 2) {
+												metaData.push(data[i]);
+											}
+										}
+										for (let i in data) {
+											if (i % 4 == 3) {
+												metaData.push(data[i]);
+											}
 										}
 									}
 						
 								});
 								
 								
-								//console.log(JSON.stringify(metaData));
+						
 								
 								//将数据封装成16字节每段的数据
 								let meta = [];
@@ -597,7 +630,7 @@
 									//当数据没有返回,并且没有返回信息继续发送
 									if(app.sendFontNumber<app.stopNumber && app.sendAck){
 											console.log("c:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]));	
-											app.log.push("发送数据段:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]))
+											app.log.push("发送数据段:"+app.sendFontNumber+"   "+ JSON.stringify(sendMetaData[app.sendFontNumber]));
 											sendDecData(sendMetaData[app.sendFontNumber],16);
 											app.sendFontNumber++;
 											if(app.sendFontNumber==app.stopNumber){
@@ -738,10 +771,10 @@
 									this.colors[i].value = 3;
 								}
 								else if(this.colors[i].rgba=="rgba(255, 0, 255, 1)"){
-									this.colors[i].value = 4;
+									this.colors[i].value = 5;
 								}
 								else if(this.colors[i].rgba=="rgba(0, 255, 255, 1)"){
-									this.colors[i].value = 5;
+									this.colors[i].value = 4;
 								}
 								else if(this.colors[i].rgba=="rgba(255, 255, 255, 1)"){
 									this.colors[i].value = 6;
@@ -763,7 +796,7 @@
 						
 						if(this.returnData.lastIndexOf("56")==0){
 							console.log("头部信息接收成功!"+this.returnData);
-							app.log.push("头部信息接收成功!"+this.returnData);
+							app.log.push("信息接收成功!"+this.returnData);
 							this.sendAck = true;
 						}
 						else if(this.returnData.lastIndexOf("66")==0){
@@ -794,7 +827,7 @@
 						if(this.sendFontNumber >= this.stopNumber){
 							clearInterval(window.sfd);
 							this.sendFontNumber = 0;
-							this.stopNumber = 32;
+							this.stopNumber = 128;
 							this.disabled = false;
 							return "发送数据";
 						}
