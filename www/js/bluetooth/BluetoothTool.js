@@ -64,7 +64,7 @@ function onPlusReady() {
 
 // 蓝牙设备mac地址id
 var deviceId = window.localStorage.getItem("id");
-console.log("ID:"+deviceId);
+//console.log("ID:"+deviceId);
 // 蓝牙服务ID
 var serviceId = '0000FFE0-0000-1000-8000-00805F9B34FB';
 // 蓝牙服务特征值ID
