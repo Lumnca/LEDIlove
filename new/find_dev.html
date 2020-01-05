@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<script src="https://unpkg.com/element-ui@2.12.0/lib/index.js"></script>
+		<script src="js/mui.js"></script>
+		<script src="js/bluetooth/BluetoothTool.js"></script>
+		<script src="js/log/log.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<mu-appbar style="width: 100%;padding-top: 1.2rem;" color="primary">
+				<mu-row gutter>
+					<mu-col span="4"></mu-col>
+					<mu-col span="5">
+						<span style="font-size: 18px;"> 设备列表</span>
+					</mu-col>
+					<mu-col span="3">
+						<mu-button flat @click="back_main()">
+							<span style="font-size: 18px;">主页</span>
+							<i class="material-icons">
+								keyboard_arrow_right
+							</i>
+						</mu-button>
+					</mu-col>
+				</mu-row>
+			</mu-appbar>
+			<mu-list>
+				<mu-list-item v-for="item in devices" button :ripple="true" @click="connect_dev(item)">
+					<mu-list-item-content>
+						<mu-list-item-title>{{item.name}}</mu-list-item-title>
+						<mu-list-item-sub-title>{{item.deviceId}}</mu-list-item-sub-title>
+					</mu-list-item-content>
+					<mu-list-item-action>
+						RSSI:{{item.RSSI}}
+					</mu-list-item-action>
+				</mu-list-item>
+			</mu-list>
+		</div>
+	</body>
+	<script>
+		document.addEventListener("plusready", function() {
+			//// 扩展API加载完毕，现在可以正常调用扩展API
+			startBluetoothDiscovery();
+			listenerDeviceFound();
+		}, false);
+
+		var app = new Vue({
+			el: "#app",
+			data: {
+				devices: [{
+					"deviceId": "6C:27:6F:93:0F:3E",
+					"name": "Test",
+					"RSSI": -90,
+					"localName": "",
+					"advertisServiceUUIDs": [],
+					"advertisData": {}
+				}]
+			},
+			methods:{
+				connect_dev(dev){
+					console.log("正在连接设备: "+dev.name+" 设备ID: "+dev.deviceId);
+					window.location.href = "main.html";
+				},
+				back_main(){
+					window.location.href = "main.html";
+				}
+			}
+		});
+
+	</script>
+</html>
