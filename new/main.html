@@ -276,7 +276,22 @@
 				input_value: 'Hello',
 				foreground_color: '224',
 				background_color: '0',
-				dz_data :[]
+				dz_data :[],
+				send_data : {
+					header : {
+						data : [85,0,1,1,1,1,1,1,0,96],
+						isabled : true
+					},
+					main : {
+						data : [],
+						isabled : true
+					},
+					end : {
+						data : [119,0,1,1,1,1,1,1,0,96],
+						isabled :true
+					},
+					is_sending : false
+				}
 			},
 			methods: {
 				back() {
@@ -332,24 +347,32 @@
 								return a.index - b.index;
 							})
 							app.dz_data.forEach((item)=>{
-								draw_font(item.data,document.getElementById("dz"),16);
+								draw_font(item.data,document.getElementById("dz"),16,app.foreground_color);
 							})	
 						}
 					});
 				},
 				set_color(){
-					/**
-					 * 	foreground_color: '224',
-				background_color: '0',
-					 */
 					console.log(this.foreground_color);
-						console.log(this.background_color);
+					console.log(this.background_color);
+				},
+				send(){
+					console.log(JSON.stringify(data_deal(this.dz_data,16)));
+					this.send_data.main.data = data_deal(this.dz_data,16);
+					var data = app.send_data.main.data;
+					var communication = setInterval(function(){
+						if(app.send_data.main.isabled){
+							for (let i in data) {
+								console.log(JSON.stringify(data[i]));
+							}
+						}
+					})
 				}
 			},
 			computed: {
 				input_length: function() {
 					this.dz_data.forEach((item)=>{
-						console.log(JSON.stringify(item));
+						//console.log(JSON.stringify(item));
 					})
 					return this.input_value.length + "/14";
 				}
