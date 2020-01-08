@@ -35,7 +35,7 @@
 				</mu-row>
 			</mu-appbar>
 			<mu-list>
-				<mu-list-item v-for="item in devices" button :ripple="true" @click="connect_dev(item)">
+				<mu-list-item v-for="item in devices" v-if="item.name!=''" button :ripple="true" @click="connect_dev(item)">
 					<mu-list-item-content>
 						<mu-list-item-title>{{item.name}}</mu-list-item-title>
 						<mu-list-item-sub-title>{{item.deviceId}}</mu-list-item-sub-title>
@@ -45,6 +45,7 @@
 					</mu-list-item-action>
 				</mu-list-item>
 			</mu-list>
+			<div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="text-align: center;"></div>
 		</div>
 	</body>
 	<script>
@@ -66,16 +67,43 @@
 					"advertisData": {}
 				}]
 			},
-			methods:{
-				connect_dev(dev){
-					console.log("正在连接设备: "+dev.name+" 设备ID: "+dev.deviceId);
+			methods: {
+				connect_dev(dev) {
+					createConnection(dev.deviceId, dev.localName);
+					window.localStorage.setItem("id", dev.deviceId);
+					console.log("正在连接设备: " + dev.name + " 设备ID: " + dev.deviceId);
 					window.location.href = "main.html";
 				},
-				back_main(){
+				back_main() {
 					window.location.href = "main.html";
 				}
 			}
 		});
+		mui.init({
+			pullRefresh: {
+				container: '#pullrefresh',
+				down: {
+					style: 'circle',
+					callback: pulldownRefresh
+				}
+			}
+		});
 
+
+		/**
+		 * 下拉刷新具体业务实现
+		 */
+		function pulldownRefresh() {
+			mui.toast("刷新成功");
+			setTimeout(function() {
+
+				mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+
+			}, 1500);
+			setTimeout(function() {
+				window.location.reload();
+			}, 500)
+
+		}
 	</script>
 </html>

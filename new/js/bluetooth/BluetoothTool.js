@@ -30,8 +30,9 @@ document.addEventListener("plusready", function() {
 	initBluetooth();
 	discoveryNewDevice();
 	getPairedDevices();
-	getConnectedBluetoothDevices()
+	getConnectedBluetoothDevices();
 		//readData();
+
 }, false);
 // 扩展API加载完毕，现在可以正常调用扩展API
 function onPlusReady() {
@@ -61,7 +62,7 @@ function onPlusReady() {
 
 // 蓝牙设备mac地址id
 var deviceId = window.localStorage.getItem("id");
-//console.log("ID:"+deviceId);
+console.log("设备ID:"+deviceId);
 // 蓝牙服务ID
 var serviceId = '0000FFE0-0000-1000-8000-00805F9B34FB';
 // 蓝牙服务特征值ID
@@ -102,9 +103,14 @@ function bluetoothInit() {
  * 蓝牙状态赋值
  */
 function init() {
-	if(state.bluetoothState){
-		app.devname = state.bluetoothName;
+	if(app.device!=undefined){
+		app.device.name = state.bluetoothName;
+		app.device.isabled  = state.bluetoothState;
+		if(!state.bluetoothState){
+			app.send_disabled = true;
+		}
 	}
+
 	//console.log("蓝牙状态" + JSON.stringify(state));
 }
 
@@ -255,13 +261,7 @@ function listenerDeviceFound(){
 				}	
 			}
 			if(!isexist){
-				if(app.devices.name!=""&&app.devices.name!=undefined&&app.devices.name!=null){
-					app.devices.push(devices[i]);
-				}
-				else{
-					devices[i].name = "Default";
-					app.devices.push(devices[i]);
-				}
+				app.devices.push(devices[i]);
 			}
 		}
 	});
@@ -418,13 +418,15 @@ function getConnectedBluetoothDevices() {
 	initBluetooth();
 	plus.bluetooth.getConnectedBluetoothDevices({
 		success: function(e) {
-			console.info("已连接的设备：" + JSON.stringify(e.devices));		
+			console.info("已连接的设备：" + JSON.stringify(e.devices));	
+			
 			var name = "[ ]"
 			if (e.devices[0] != undefined && e.devices[0].deviceId != undefined) {
 				name = e.devices[0].name != undefined ? e.devices[0].name : e.devices[0].deviceId;
 				state.bluetoothID = e.devices[0].deviceId;
 				state.bluetoothName = e.devices[0].name;
 				flag = true;
+				createConnection(e.devices[0].deviceId,e.devices[0].name);
 			} else {
 				flag = false;
 			}
@@ -556,10 +558,10 @@ function readData() {
 		if (e.value != undefined) {
 			//$("#receiveDataArr").html(buffer2hex(e.value));
 			//$("#receiveDataStr").html(hexCharCodeToStr(buffer2hex(e.value)));
-			console.log("===========================================================");
+			/*console.log("===========================================================");
 			console.log("返回信息:" + buffer2hex(e.value));
-			console.log("===========================================================");
-			app.returnData = buffer2hex(e.value);
+			console.log("===========================================================");*/
+			app.return_data = buffer2hex(e.value);
 			state.data =  buffer2hex(e.value);
 		}
 	});

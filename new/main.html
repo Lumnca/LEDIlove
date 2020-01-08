@@ -27,7 +27,8 @@
 				border: 2px solid #000000;
 				border-radius: 5px;
 				height: 6.25rem;
-				width: 84rem;
+				width: 6rem;
+				overflow: scroll;
 			}
 			.simalimg {
 				border: 1px solid #000000;
@@ -59,8 +60,8 @@
 							</mu-menu>
 						</div>
 					</mu-col>
-					<mu-col span="6">
-
+					<mu-col span="6"  style="font-size: 16px;text-align: center;">
+							{{device.name}}
 					</mu-col>
 					<mu-col span="3">
 						<span @click="back()">
@@ -77,18 +78,26 @@
 					</mu-col>
 				</mu-row>
 			</mu-appbar>
-			<div>
-				<mu-flex class="select-control-row">
-					<mu-checkbox v-model="is_showdz" label="预览" @click="set_showdz()"></mu-checkbox>
-				</mu-flex>
-			</div>
-			<div style="height: 6.5rem; padding: 0.25rem;overflow: scroll;" >
+
+			<div style="height: 6.5rem; padding: 0.25rem;">
 				<mu-row gutter>
-					<mu-col span="12" >
-						<div class="showdz">
-							<div :style="dz_show" id="dz" >
+					<mu-col span="4">
+						<div class="showdz" id="slide">
+							<div :style="dz_show" id="dz" style="width: 6rem;">
 
 							</div>
+						</div>
+					</mu-col>
+					<mu-col span="8">
+						<div>
+							<mu-flex class="select-control-row">
+								<mu-checkbox v-model="is_showdz" label="预览" @click="set_showdz()"></mu-checkbox>
+							</mu-flex>
+						</div>
+						<div>
+							<mu-flex class="select-control-row">
+								<mu-checkbox v-model="is_autoslide" label="滑动" @click="slide()"></mu-checkbox>
+							</mu-flex>
 						</div>
 					</mu-col>
 				</mu-row>
@@ -131,7 +140,7 @@
 
 					</mu-container>
 					<div style="padding: 2px;">
-						<mu-text-field v-model="input_value" label="内容" full-width  @blur="preview()"></mu-text-field><br />
+						<mu-text-field v-model="input_value" label="内容" full-width @blur="preview()" @focus="edit()"></mu-text-field><br />
 					</div>
 					<div class="simalimg">
 						<div style="text-align: center;">
@@ -198,27 +207,27 @@
 
 						<mu-flex align-items="center" style="padding-bottom: 8px;">
 							<span>前景色 &nbsp; </span>
-							<mu-radio v-model="foreground_color" style="margin-right: 16px;background: #FF0000;" value="#FF0000" @click="set_color()"></mu-radio>
-							<mu-radio v-model="foreground_color" style="margin-right: 16px;background: #00FF00;" value="#00FF00" @click="set_color()"></mu-radio>
-							<mu-radio v-model="foreground_color" style="margin-right: 16px;background: #0000FF;" value="#0000FF" @click="set_color()"></mu-radio>
-							<mu-radio v-model="foreground_color" style="margin-right: 16px;background: #FFFF00;" value="#FFFF00" @click="set_color()"></mu-radio>
-							<mu-radio v-model="foreground_color" style="margin-right: 16px;background: #FF00FF;" value="#FF00FF" @click="set_color()"></mu-radio>
-							<mu-radio v-model="foreground_color" style="margin-right: 16px;background: #00FFFF;" value="#00FFFF" @click="set_color()"></mu-radio>
-							<mu-radio v-model="foreground_color" style="margin-right: 16px;background: #FFFFFF;" value="#FFFFFF" @click="set_color()"></mu-radio>
+							<mu-radio v-model="foreground_color" style="margin-right: 16px;color: #FF0000;" value="#FF0000" @click="set_color()"></mu-radio>
+							<mu-radio v-model="foreground_color" style="margin-right: 16px;color: #00FF00;" value="#00FF00" @click="set_color()"></mu-radio>
+							<mu-radio v-model="foreground_color" style="margin-right: 16px;color: #0000FF;" value="#0000FF" @click="set_color()"></mu-radio>
+							<mu-radio v-model="foreground_color" style="margin-right: 16px;color: #FFFF00;" value="#FFFF00" @click="set_color()"></mu-radio>
+							<mu-radio v-model="foreground_color" style="margin-right: 16px;color: #FF00FF;" value="#FF00FF" @click="set_color()"></mu-radio>
+							<mu-radio v-model="foreground_color" style="margin-right: 16px;color: #00FFFF;" value="#00FFFF" @click="set_color()"></mu-radio>
+							<mu-radio v-model="foreground_color" style="margin-right: 16px;color: #FFFFFF;" value="#FFFFFF" @click="set_color()"></mu-radio>
 						</mu-flex>
 					</div>
 					<div style="padding: 5px 10px;">
 
 						<mu-flex align-items="center" style="padding-bottom: 8px;">
 							<span>背景色 &nbsp; </span>
-						
-							<mu-radio v-model="background_color" style="margin-right: 16px;background: #FF0000;" value="224" @click="set_color()"></mu-radio>
-							<mu-radio v-model="background_color" style="margin-right: 16px;background: #00FF00;" value="56" @click="set_color()"></mu-radio>
-							<mu-radio v-model="background_color" style="margin-right: 16px;background: #0000FF;" value="3" @click="set_color()"></mu-radio>
-							<mu-radio v-model="background_color" style="margin-right: 16px;background: #FFFF00" value="252" @click="set_color()"></mu-radio>
-							<mu-radio v-model="background_color" style="margin-right: 16px;background: #FF00FF;" value="227" @click="set_color()"></mu-radio>
-							<mu-radio v-model="background_color" style="margin-right: 16px;background: #00FFFF;" value="31" @click="set_color()"></mu-radio>
-							<mu-radio v-model="background_color" style="margin-right: 16px;background: #000000;" value="0" @click="set_color()"></mu-radio>
+
+							<mu-radio v-model="background_color" style="margin-right: 16px;color: #FF0000;" value="#FF0000" @click="set_color()"></mu-radio>
+							<mu-radio v-model="background_color" style="margin-right: 16px;color: #00FF00;" value="#00FF00" @click="set_color()"></mu-radio>
+							<mu-radio v-model="background_color" style="margin-right: 16px;color: #0000FF;" value="#0000FF" @click="set_color()"></mu-radio>
+							<mu-radio v-model="background_color" style="margin-right: 16px;color: #FFFF00;" value="#FFFF00" @click="set_color()"></mu-radio>
+							<mu-radio v-model="background_color" style="margin-right: 16px;color: #FF00FF;" value="#FF00FF" @click="set_color()"></mu-radio>
+							<mu-radio v-model="background_color" style="margin-right: 16px;color: #00FFFF;" value="#00FFFF" @click="set_color()"></mu-radio>
+							<mu-radio v-model="background_color" style="margin-right: 16px;color: #000000;" value="#000000" @click="set_color()"></mu-radio>
 						</mu-flex>
 					</div>
 				</div>
@@ -230,18 +239,18 @@
 
 					<mu-container class="button-wrapper">
 						<el-row style="margin-top: 1rem;">
-							<el-button type="warning" size="mini" @click="button1()">随机</el-button>
-							<el-button type="warning" size="mini" @click="button2()">左移</el-button>
-							<el-button type="warning" size="mini" @click="button3()">右移</el-button>
-							<el-button type="warning" size="mini" @click="button4()">上移</el-button>
-							<el-button type="warning" size="mini" @click="button4()">下移</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(-1)">随机</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(4)">左移</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(5)">右移</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(2)">上移</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(3)">下移</el-button>
 						</el-row>
 						<el-row style="margin-top: 1rem;">
-							<el-button type="warning" size="mini" @click="button5()">固定</el-button>
-							<el-button type="warning" size="mini" @click="button6()">闪烁</el-button>
-							<el-button type="warning" size="mini" @click="button7()">淡出</el-button>
-							<el-button type="warning" size="mini" @click="button8()">溶解</el-button>
-							<el-button type="warning" size="mini" @click="button4()">旋转</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(1)">固定</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(6)">闪烁</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(-1)">淡出</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(7)">溶解</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(8)">旋转</el-button>
 						</el-row>
 
 						<mu-container>
@@ -251,7 +260,7 @@
 
 				<div style="margin: 10px 5px;">
 					<mu-flex justify-content="center" align-items="center">
-						<mu-button full-width color="primary" @click="send()">确认并发送</mu-button>
+						<mu-button full-width color="primary" @click="send()" :disabled="send_disabled">{{send_monitor}}</mu-button>
 					</mu-flex>
 				</div>
 			</div>
@@ -261,37 +270,49 @@
 		var app = new Vue({
 			el: "#app",
 			data: {
+				device : {
+					name : '无连接',
+					isabled : false,
+					id : ''
+				},
 				is_showdz: true,
+				is_autoslide: false,
 				dz_show: {
 					"visibility": "visible",
 				},
 				active: 1,
 				font_size: 16,
-				fontSizeOptions: [14, 16, 32],
+				fontSizeOptions: [16, 32],
 				effect: '',
 				effectOptions: ["x", "xs"],
 				font_style: '',
 				fontStyleOptions: ["宋体", "楷体"],
 				inputLength: '0/20',
-				input_value: 'Hello',
-				foreground_color: '224',
-				background_color: '0',
-				dz_data :[],
-				send_data : {
-					header : {
-						data : [85,0,1,1,1,1,1,1,0,96],
-						isabled : true
+				input_value: '你好',
+				foreground_color: '#FF0000',
+				background_color: '#000000',
+				dz_data: [],
+				font_color: [],
+				send_disabled: false,
+				send_data: {
+					header: {
+						data: [85, 0, 1, 1, 1, 1, 1, 1, 0, 0], //9，10号位长度      8号位汉字个数,7号位汉字字体大小
+						isabled: true
 					},
-					main : {
-						data : [],
-						isabled : true
+					main: {
+						data: [],
+						isabled: false
 					},
-					end : {
-						data : [119,0,1,1,1,1,1,1,0,96],
-						isabled :true
+					end: {
+						data: [119, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+						isabled: false
 					},
-					is_sending : false
-				}
+					is_sending: false,
+					send_index: 0,
+					send_length: 0,
+					send_byte: 0
+				},
+				return_data: '',
 			},
 			methods: {
 				back() {
@@ -314,14 +335,18 @@
 				clear_input() {
 					this.input_value = "5";
 				},
-				preview(){
+				edit() {
+					this.send_disabled = true;
+				},
+				preview() {
 					this.dz_data = [];
+					this.send_disabled = false;
 					document.getElementById("dz").innerHTML = "";
 					for (var i = 0; i < this.input_value.length; i++) {
-						this.request_fontdata(this.input_value[i],'hzk16s',i,this.foreground_color);
+						this.request_fontdata(this.input_value[i], 'hzk16s', i, this.font_color[i].rgb);
 					}
 				},
-				request_fontdata(str,font,indexOf) {
+				request_fontdata(str, font, indexOf) {
 					var dataArray = [];
 					if (this.font_size == 16) {
 						url = 'http://47.106.254.86:1234/server1.php';
@@ -339,44 +364,212 @@
 							var hex = parseInt(item, 16).toString(2);
 							var tmp = 8 - hex.length;
 							dataArray.push(zero.substr(0, tmp) + hex);
-							
+
 						});
-						app.dz_data.push({"index":indexOf,"data":dataArray,"img":false});
-						if(app.dz_data.length==app.input_value.length){
-							app.dz_data.sort(function(a,b){
+						//填充数据
+						app.dz_data.push({
+							"index": indexOf,
+							"data": dataArray,
+							"img": false
+						});
+						app.send_disabled = true;
+
+						if (app.dz_data.length == app.input_value.length) {
+							app.dz_data.sort(function(a, b) {
 								return a.index - b.index;
-							})
-							app.dz_data.forEach((item)=>{
-								draw_font(item.data,document.getElementById("dz"),16,app.foreground_color);
-							})	
+							});
+
+							//发送数据字节16-32 32-128
+							app.send_data.send_byte = app.dz_data.length * (6 * app.font_size - 64);
+							//发送数据段数 
+							app.send_data.send_length = app.send_data.send_byte / 16;
+							//汉字各使用
+							app.send_data.header.data[6] = app.font_size == 16 ? 1 : 0;
+							app.send_data.end.data[6] = app.font_size == 16 ? 1 : 0;
+							app.send_data.header.data[7] = app.dz_data.length;
+							app.send_data.end.data[7] = app.dz_data.length;
+
+							var len = app.send_data.send_byte;
+							if (len < 255) {
+								app.send_data.header.data[8] = 0;
+								app.send_data.end.data[8] = 0;
+								app.send_data.header.data[9] = len;
+								app.send_data.end.data[9] = len;
+							} else {
+								let GW = Math.floor(len / 256);
+								let DW = len % 256;
+								app.send_data.header.data[8] = GW;
+								app.send_data.end.data[8] = GW;
+								app.send_data.header.data[9] = DW;
+								app.send_data.end.data[9] = DW;
+							}
+
+
+							app.dz_data.forEach((item) => {
+								draw_font(item.data, document.getElementById("dz"), app.font_size, app.font_color[item.index].rgb);
+							});
+							app.send_disabled = false;
 						}
 					});
 				},
-				set_color(){
-					console.log(this.foreground_color);
-					console.log(this.background_color);
+				set_color() {
+					//console.log(this.foreground_color);
+					//console.log(this.background_color);
 				},
-				send(){
-					console.log(JSON.stringify(data_deal(this.dz_data,16)));
-					this.send_data.main.data = data_deal(this.dz_data,16);
-					var data = app.send_data.main.data;
-					var communication = setInterval(function(){
-						if(app.send_data.main.isabled){
-							for (let i in data) {
-								console.log(JSON.stringify(data[i]));
-							}
+				send() {
+					this.send_disabled = true;
+					this.send_data.is_sending = true;
+					this.send_data.main.data = data_deal(this.dz_data, this.font_size, this.font_color);
+
+					console.log("数据头格式: " + JSON.stringify(this.send_data.header.data));
+					readData();
+					setTimeout(function() {
+						//发送数据字节16-32 32-128
+						app.send_data.send_byte = app.dz_data.length * (6 * app.font_size - 64);
+						//发送数据段数 
+						app.send_data.send_length = app.send_data.send_byte / 16;
+						//汉字各使用
+						app.send_data.header.data[6] = app.font_size == 16 ? 1 : 0;
+						app.send_data.end.data[6] = app.send_data.header.data[6];
+
+						app.send_data.header.data[7] = app.dz_data.length;
+						app.send_data.end.data[7] = app.dz_data.length;
+
+						var len = app.send_data.send_byte;
+						if (len < 255) {
+							app.send_data.header.data[8] = 0;
+							app.send_data.end.data[8] = 0;
+							app.send_data.header.data[9] = len;
+							app.send_data.end.data[9] = len;
+						} else {
+							let GW = Math.floor(len / 256);
+							let DW = len % 256;
+							app.send_data.header.data[8] = GW;
+							app.send_data.end.data[8] = GW;
+							app.send_data.header.data[9] = DW;
+							app.send_data.end.data[9] = DW;
 						}
-					})
+						sendDecData(app.send_data.header.data, 10);
+						setTimeout(function() {
+							window.communication = setInterval(function() {
+								var data = app.send_data.main.data;
+								var i = app.send_data.send_index;
+								if (app.send_data.main.isabled && i < app.send_data.send_length) {
+									console.log("数据段" + i + " :" + JSON.stringify(data[i]));
+									sendDecData(data[i], 16);
+									app.send_data.send_index += 1;
+									if (app.send_data.send_index == app.send_data.send_length) {
+										app.send_data.send_index = 0;
+										app.send_data.is_sending = false;
+										app.send_disabled = false;
+										clearInterval(window.communication);
+									}
+								}
+							}, 200);
+						}, 100);
+					}, 100);
+
+
+				},
+				slide() {
+					if (this.input_value.length > 1 && this.is_autoslide) {
+						document.getElementById('slide').scrollTop = 0;
+						var all_heigh = $("#slide")[0].scrollHeight;
+						window.auto_slide = setInterval(function() {
+							document.getElementById('slide').scrollTop += 10;
+							if ($("#slide").scrollTop() + 96 >= all_heigh) {
+								clearInterval(window.auto_slide);
+								app.is_autoslide = false;
+							}
+						}, 100);
+					}
+
+				},
+				special_effects(type) {
+					this.send_data.header.data[5] = type;
+					this.send_data.end.data[5] = type;
 				}
 			},
 			computed: {
 				input_length: function() {
-					this.dz_data.forEach((item)=>{
-						//console.log(JSON.stringify(item));
-					})
+					if (this.input_value.length >= 0) {
+						//console.log(JSON.stringify(this.font_color));
+						for (var i = 0; i < this.input_value.length; i++) {
+							if (this.font_color[i].rgb == "") {
+								this.font_color[i].rgb = this.foreground_color;
+							}
+							if (this.font_color[i].rgb == "#FF0000") {
+								this.font_color[i].value = 0;
+							} else if (this.font_color[i].rgb == "#00FF00") {
+								this.font_color[i].value = 1;
+							} else if (this.font_color[i].rgb == "#0000FF") {
+								this.font_color[i].value = 2;
+							} else if (this.font_color[i].rgb == "#FFFF00") {
+								this.font_color[i].value = 3;
+							} else if (this.font_color[i].rgb == "#FF00FF") {
+								this.font_color[i].value = 5;
+							} else if (this.font_color[i].rgb == "00FFFF") {
+								this.font_color[i].value = 4;
+							} else if (this.font_color[i].rgb == "#FFFFFF") {
+								this.font_color[i].value = 6;
+							}
+						}
+						for (var i = 0; i < this.font_color.length; i++) {
+							if (i >= this.input_value.length) {
+								this.font_color[i].rgb = "";
+								this.font_color[i].value = 0;
+							}
+						}
+					}
+					if (this.input_value.length > 14) {
+						this.input_value = this.input_value.substring(0, 14);
+					}
 					return this.input_value.length + "/14";
+				},
+				send_monitor: function() {
+
+					if (this.return_data.lastIndexOf("56") == 0) {
+						console.log("信息接收成功! " + this.return_data);
+						this.send_data.main.isabled = true;
+					} else if (this.return_data.lastIndexOf("66") == 0) {
+						console.log("信息输入成功! " + this.return_data);
+						sendDecData(this.send_data.end.data, 10);
+					} else if (this.return_data.lastIndexOf("76") == 0) {
+						console.log("数据发送成功!" + this.return_data);
+
+					} else if (this.return_data.lastIndexOf("88") == 0) {
+						console.log("发生错误" + this.return_data);
+						//window.location.reload();
+					} else {
+						//console.log("未知错误"+this.return_data);
+					}
+
+
+					if (this.send_disabled) {
+						if(!this.device.isabled){
+							return "无服务";
+						}
+						else{
+							return Math.floor(this.send_data.send_index / this.send_data.send_length * 100) + "%";
+						}
+						
+					} else {
+						return "确认并发送";
+					}
+
+				}
+			},
+			mounted() {
+				for (var i = 0; i < 14; i++) {
+					this.font_color.push({
+						"rgb": "",
+						"value": 0
+					})
 				}
 			}
-		})
+		});
+
+		app.preview();
+		app.active = 0;
 	</script>
 </html>
