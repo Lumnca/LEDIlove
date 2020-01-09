@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<script src="https://unpkg.com/element-ui@2.12.0/lib/index.js"></script>
+		<script src="js/mui.js"></script>
+		<script src="js/bluetooth/BluetoothTool.js"></script>
+		<script src="js/database/img_db.js"></script>
+		<style>
+			@import url("https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css");
+		</style>
+	</head>
+	<body style="background: #555555;">
+		<div id="app">
+			<mu-appbar style="width: 100%;padding-top: 1.2rem;" color="primary">
+				<mu-row gutter>
+					<mu-col span="4"><span style="font-size: 16px;"> 编辑(自定义)</span></mu-col>
+					<mu-col span="5">
+
+					</mu-col>
+					<mu-col span="3">
+						<span @click="back()">
+							<i class="material-icons">
+								reply
+							</i>
+						</span>
+						<span>&nbsp;</span>
+						<span>
+							<i class="material-icons">
+								settings_applications
+							</i>
+						</span>
+					</mu-col>
+				</mu-row>
+			</mu-appbar>
+			<div style="margin: 8px;" id="show">
+				<div style="margin: auto;overflow: scroll;">
+					<canvas id="canvas" width="420" height="420" @click="img_edit(1)"></canvas>
+				</div>
+			</div>
+			<div>
+				<mu-container class="button-wrapper">
+					<el-row>
+						<el-button type="warning" size="mini" @click="special_effects(-1)">暂定</el-button>
+						<el-button type="warning" size="mini" @click="special_effects(4)">暂定</el-button>
+						<el-button type="warning" size="mini" @click="draw_disabled(false)">禁用</el-button>
+						<el-button type="warning" size="mini" @click="draw_disabled(true)">上色 </el-button>
+						<el-button type="warning" size="mini" @click="special_effects(2)">删除</el-button>
+				
+					</el-row>
+					<el-row style="margin-top: 4px;">
+						<el-button type="warning" size="mini" @click="special_effects(4)">暂定</el-button>
+						<el-button type="warning" size="mini" @click="withdraw()">撤回</el-button>
+						<el-button type="warning" size="mini" @click="forward()">前进</el-button>
+						<el-button type="warning" size="mini" @click="special_effects(-1)">取消</el-button>
+						<el-button type="warning" size="mini" @click="special_effects(7)">保存</el-button>
+					</el-row>
+				<mu-container>
+			</div>
+			<div style="padding: 5px 10px;margin-top: 8px;">
+				<mu-flex align-items="center" style="padding-bottom: 8px;">
+					<span>颜色 :&nbsp;</span>
+			
+					<mu-radio v-model="color" style="margin-right: 16px;color: #FF0000;" value="224" @click="set_color()"></mu-radio>
+					<mu-radio v-model="color" style="margin-right: 16px;color: #00FF00;" value="28" @click="set_color()"></mu-radio>
+					<mu-radio v-model="color" style="margin-right: 16px;color: #0000FF;" value="3" @click="set_color()"></mu-radio>
+					<mu-radio v-model="color" style="margin-right: 16px;color: #FFFF00;" value="252" @click="set_color()"></mu-radio>
+					<mu-radio v-model="color" style="margin-right: 16px;color: #FF00FF;" value="115" @click="set_color()"></mu-radio>
+					<mu-radio v-model="color" style="margin-right: 16px;color: #00FFFF;" value="31" @click="set_color()"></mu-radio>
+					<mu-radio v-model="color" style="margin-right: 16px;color: #000000;" value="0" @click="set_color()"></mu-radio>
+				</mu-flex>
+			</div>
+			<div style="margin: 10px 5px;">
+				<mu-flex justify-content="center" align-items="center">
+					<mu-button full-width color="primary" @click="send()" :disabled="send_disabled">{{sendload}}</mu-button>
+				</mu-flex>
+			</div>
+			<div style="visibility: hidden;15080019137">
+				{{sendTimer}}
+			</div>
+		</div>
+	</body>
+	<script>
+		openDB();
+		var app = new Vue({
+			el: "#app",
+			data: {
+				color : "224",
+				edit_isabled : false,
+				send_disabled : false,
+				sendNumber : 0,
+				sendload : '上传图像',
+				img : {id:1,data:[],name:'微笑'},
+				img_data : [],
+				buffer : [],
+				re_buffer:[]
+			},
+			methods: {
+				back() {
+					window.location.href = "img_send.html";
+				},
+				update() {
+					console.log("s");
+				},
+				set_color(){
+				},
+				img_edit(i){
+					if(this.edit_isabled){					
+						var screenX = 420;
+						var screenY = 420;    
+						var x = event.offsetX;
+						var y = event.offsetY;
+								 
+						var row = Math.floor(x/420*32);
+						var col = Math.floor(y/420*32);
+						this.buffer.push({i:col,j:row,value:this.img_data[col*32+row]});
+						this.img_data[col*32+row] = this.color;
+						
+						var canvas=document.getElementById('canvas');
+						var context=canvas.getContext('2d');
+						render(context,this.img_data);
+					}
+
+				},
+				withdraw(){
+					if(this.buffer.length>0){
+						let data = this.buffer[this.buffer.length-1];
+						this.re_buffer.push({i:data.i,j:data.j,value:this.img_data[data.i*32+data.j]});
+						this.img_data[data.i*32+data.j] = data.value;
+						
+						var canvas=document.getElementById('canvas');
+						var context=canvas.getContext('2d');
+						render(context,this.img_data);
+						this.buffer.length = this.buffer.length-1;
+					}
+				},
+				forward(){
+					if(this.re_buffer.length>0){
+						let data = this.re_buffer[this.re_buffer.length-1];
+						this.buffer.push({i:data.i,j:data.j,value:this.img_data[data.i*32+data.j]});
+						this.img_data[data.i*32+data.j] = data.value;
+						var canvas=document.getElementById('canvas');
+						var context=canvas.getContext('2d');
+						render(context,this.img_data);
+						this.re_buffer.length = this.re_buffer.length-1;
+					}
+				},
+				draw_disabled(flag){
+					this.edit_isabled = flag;
+				},
+				send(){
+					this.img.data = this.img_data;
+					this.add(this.img);
+					/*onSendData2();
+					readData();
+							
+					setTimeout(function(){
+						if(app.sendNumber<64){
+							window.timerS = setInterval(function(){
+								app.send_disabled = true;
+								app.sendNumber += 1;
+								app.sendload = " "+Math.floor(app.sendNumber/64*100)+"%";
+								var dataDuan = new Array(16);
+								
+								for (var i = 0; i < 16; i++) {
+									dataDuan[i] = app.img_data[(app.sendNumber-1)*16+i];
+								}
+								send16HexData(dataDuan,16);
+								console.log(JSON.stringify(dataDuan));
+							},100);						
+						}	
+					},1000);*/	
+				},
+				add(img){
+					plus.sqlite.executeSql({
+							name: 'main',
+							sql: "  insert into imgData values("+img.id+",' "+JSON.stringify(img.data)+" ' , '"+img.name+" ' )",
+							success: function(e){
+								//this.result = '执行命令成功!';
+								console.log('执行成功');	
+							},
+							fail: function(e){
+								//this.result = '执行失败: '+JSON.stringify(e);
+								console.log('executeSql failed: '+JSON.stringify(e));
+								
+							}
+					});
+				}
+			},
+			computed:{
+			
+				sendTimer:  function() {
+					if(this.sendNumber>=64){
+						clearInterval(window.timerS);
+						app.sendNumber = 0;	
+						app.send_disabled = false;
+						app.sendload = "上传图像";
+						setTimeout(function(){
+							sendDecData([7*16+7,0,6,1,2,1,1,1,4,0],10);
+						},1000);
+					}
+					else{
+						
+					}
+					return this.sendNumber + "R:"+ JSON.stringify(this.returnData);
+				}
+			},
+		});
+
+	</script>
+	<script src="js/img/canvas.js"></script>
+</html>

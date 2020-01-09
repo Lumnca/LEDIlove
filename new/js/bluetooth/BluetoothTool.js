@@ -106,9 +106,7 @@ function init() {
 	if(app.device!=undefined){
 		app.device.name = state.bluetoothName;
 		app.device.isabled  = state.bluetoothState;
-		if(!state.bluetoothState){
-			app.send_disabled = true;
-		}
+
 	}
 
 	//console.log("蓝牙状态" + JSON.stringify(state));

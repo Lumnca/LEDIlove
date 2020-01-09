@@ -17,6 +17,7 @@
 		<script src="js/bluetooth/BluetoothTool.js"></script>
 		<script src="js/log/log.js"></script>
 		<script src="js/request/font_data.js"></script>
+		<script  type="text/javascript" src="js/img/img_data.js"></script>
 		<style>
 			@import url("https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css");
 			.material-icons:active {
@@ -60,8 +61,8 @@
 							</mu-menu>
 						</div>
 					</mu-col>
-					<mu-col span="6"  style="font-size: 16px;text-align: center;">
-							{{device.name}}
+					<mu-col span="6" style="font-size: 16px;text-align: center;">
+						{{device.name}}
 					</mu-col>
 					<mu-col span="3">
 						<span @click="back()">
@@ -193,7 +194,7 @@
 										mail
 									</i>
 								</mu-button>
-								<mu-button icon color="red">
+								<mu-button icon color="red" @click="insertImg(2)">
 									<i class="material-icons">
 										call
 									</i>
@@ -266,14 +267,15 @@
 			</div>
 		</div>
 	</body>
+	
 	<script>
 		var app = new Vue({
 			el: "#app",
 			data: {
-				device : {
-					name : '无连接',
-					isabled : false,
-					id : ''
+				device: {
+					name: '无连接',
+					isabled: false,
+					id: ''
 				},
 				is_showdz: true,
 				is_autoslide: false,
@@ -313,6 +315,8 @@
 					send_byte: 0
 				},
 				return_data: '',
+				img: [], //图片数据
+				buffer_image: [], //图片已选择的缓存区
 			},
 			methods: {
 				back() {
@@ -342,8 +346,24 @@
 					this.dz_data = [];
 					this.send_disabled = false;
 					document.getElementById("dz").innerHTML = "";
+					let img_number = 0;
 					for (var i = 0; i < this.input_value.length; i++) {
-						this.request_fontdata(this.input_value[i], 'hzk16s', i, this.font_color[i].rgb);
+						if (this.input_value[i] != "✿") {
+							this.request_fontdata(this.input_value[i], 'hzk16s', i, this.font_color[i].rgb);
+						} else {
+							this.dz_data.push({
+								"index": i,
+								"data": this.buffer_image[img_number].data,
+								"img": true,
+							});
+							img_number++;
+							this.color_update();
+						}
+						if(img_number== this.input_value.length){
+							this.dz_data.forEach((item) => {
+								draw_img(item.data, app.font_color[item.index].rgb);
+							});
+						}
 					}
 				},
 				request_fontdata(str, font, indexOf) {
@@ -406,11 +426,33 @@
 
 
 							app.dz_data.forEach((item) => {
-								draw_font(item.data, document.getElementById("dz"), app.font_size, app.font_color[item.index].rgb);
+								if(!item.img){
+									draw_font(item.data, document.getElementById("dz"), app.font_size, app.font_color[item.index].rgb);
+								}
+								else{
+									draw_img(item.data, app.font_color[item.index].rgb);
+								}
 							});
 							app.send_disabled = false;
 						}
 					});
+				},
+				//插入图像
+				insertImg(i) {
+					if(this.font_size!=32){
+						let l = this.input_value.length;
+						this.input_value += "✿"; //使用特殊占位符代表图片
+						
+						//存入缓存区
+						this.buffer_image.push(this.img[i]);
+						//添加入点阵信息中
+						this.dz_data.push({
+							"index": l,
+							"data": app.img[i].data,
+							"img": true
+						});
+						this.preview();
+					}
 				},
 				set_color() {
 					//console.log(this.foreground_color);
@@ -488,42 +530,60 @@
 				special_effects(type) {
 					this.send_data.header.data[5] = type;
 					this.send_data.end.data[5] = type;
+				},
+				color_update(){
+					for (var i = 0; i < this.input_value.length; i++) {
+						if (this.font_color[i].rgb == "") {
+							this.font_color[i].rgb = this.foreground_color;
+						}
+						if (this.font_color[i].rgb == "#FF0000") {
+							this.font_color[i].value = 0;
+						} else if (this.font_color[i].rgb == "#00FF00") {
+							this.font_color[i].value = 1;
+						} else if (this.font_color[i].rgb == "#0000FF") {
+							this.font_color[i].value = 2;
+						} else if (this.font_color[i].rgb == "#FFFF00") {
+							this.font_color[i].value = 3;
+						} else if (this.font_color[i].rgb == "#FF00FF") {
+							this.font_color[i].value = 5;
+						} else if (this.font_color[i].rgb == "00FFFF") {
+							this.font_color[i].value = 4;
+						} else if (this.font_color[i].rgb == "#FFFFFF") {
+							this.font_color[i].value = 6;
+						}
+					}
+					
+					for (var i = 0; i < this.font_color.length; i++) {
+						if (i >= this.input_value.length) {
+							this.font_color[i].rgb = "";
+							this.font_color[i].value = 0;
+						}
+					}
 				}
 			},
 			computed: {
 				input_length: function() {
 					if (this.input_value.length >= 0) {
 						//console.log(JSON.stringify(this.font_color));
+						this.color_update();
+					}
+					if (this.input_value.indexOf('✿') == -1) {
+						this.buffer_image = [];
+					} else {
+						let imgN = 0;
 						for (var i = 0; i < this.input_value.length; i++) {
-							if (this.font_color[i].rgb == "") {
-								this.font_color[i].rgb = this.foreground_color;
-							}
-							if (this.font_color[i].rgb == "#FF0000") {
-								this.font_color[i].value = 0;
-							} else if (this.font_color[i].rgb == "#00FF00") {
-								this.font_color[i].value = 1;
-							} else if (this.font_color[i].rgb == "#0000FF") {
-								this.font_color[i].value = 2;
-							} else if (this.font_color[i].rgb == "#FFFF00") {
-								this.font_color[i].value = 3;
-							} else if (this.font_color[i].rgb == "#FF00FF") {
-								this.font_color[i].value = 5;
-							} else if (this.font_color[i].rgb == "00FFFF") {
-								this.font_color[i].value = 4;
-							} else if (this.font_color[i].rgb == "#FFFFFF") {
-								this.font_color[i].value = 6;
+							if (this.input_value[i] == '✿') {
+								imgN++;
 							}
 						}
-						for (var i = 0; i < this.font_color.length; i++) {
-							if (i >= this.input_value.length) {
-								this.font_color[i].rgb = "";
-								this.font_color[i].value = 0;
-							}
+						if (imgN < this.buffer_image.length) {
+							this.buffer_image.length = imgN;
 						}
 					}
 					if (this.input_value.length > 14) {
 						this.input_value = this.input_value.substring(0, 14);
 					}
+					console.log(JSON.stringify(this.buffer_image));
 					return this.input_value.length + "/14";
 				},
 				send_monitor: function() {
@@ -539,27 +599,24 @@
 
 					} else if (this.return_data.lastIndexOf("88") == 0) {
 						console.log("发生错误" + this.return_data);
-						//window.location.reload();
+						window.location.reload();
 					} else {
 						//console.log("未知错误"+this.return_data);
 					}
-
-
-					if (this.send_disabled) {
-						if(!this.device.isabled){
-							return "无服务";
-						}
-						else{
+					if (this.device.isabled) {
+						if (this.send_disabled) {
 							return Math.floor(this.send_data.send_index / this.send_data.send_length * 100) + "%";
+						} else {
+							return "确认并发送";
 						}
-						
 					} else {
-						return "确认并发送";
+						this.send_disabled = true;
+						return "无服务";
 					}
-
 				}
 			},
 			mounted() {
+				this.img = simple_image;
 				for (var i = 0; i < 14; i++) {
 					this.font_color.push({
 						"rgb": "",
@@ -571,5 +628,6 @@
 
 		app.preview();
 		app.active = 0;
+
 	</script>
 </html>

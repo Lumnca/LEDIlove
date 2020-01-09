@@ -19,10 +19,22 @@
 			.material-icons:active{
 				color: red;
 			}
+			.cols{
+				border: #F0F0F0 solid 1px;
+				border-radius: 4px;
+				padding: 4px;
+			}
+			.rows{
+				margin: 4px 4px;
+				
+			}
+			.edit:active{
+				color: red;
+			}
 		</style>
 	</head>
-	<body>
-		<div id="app">
+	<body style="background: #555555;">
+		<div id="app" >
 			<mu-appbar style="width: 100%;padding-top: 1.2rem;" color="primary">
 				<mu-row gutter>
 					<mu-col span="3">
@@ -62,13 +74,50 @@
 					</mu-col>
 				</mu-row>
 			</mu-appbar>
+			<div style="margin-top: 1rem;">
+				<mu-tabs :value.sync="active" :full-width="true" indicator-color="#FFD700" style="height: 25px;">
+					<mu-tab>预览</mu-tab>
+					<mu-tab>内置图库</mu-tab>
+					<mu-tab>我的收藏</mu-tab>
+					<mu-tab>特效</mu-tab>
+				</mu-tabs>
+				<div v-if="active === 0">
+					1
+				</div>
+				<div v-if="active === 1">
+					<mu-row gutter v-for="col in img" class="rows">
+						<mu-col span="3" v-for="j in col" style="padding: 2px;" >
+							<div class="cols">
+								<mu-avatar color="teal" :size="size" @click="edit_img(j)" class="edit">
+								  {{j}}
+								</mu-avatar>
+								<div><mu-checkbox v-model="edit" label="编辑"></mu-checkbox></div>
+							
+							</div>
+						</mu-col>
+					</mu-row>
+				</div>
+				<div v-if="active === 2">
+				
+				</div>
+				<div v-if="active === 3">
+					4
+				</div>
+			</div>
 		</div>
 	</body>
 	<script>
 		var app = new Vue({
 			el: "#app",
 			data: {
-				
+				active : 1,
+				img : [
+					[1,2,3,4],
+					[5,6,7,8],
+					[9,10,11,12]
+				],
+				edit : false,
+				size : 70
 			},
 			methods:{
 				back(){
@@ -79,6 +128,10 @@
 				},
 				back_clock(){
 					window.location.href = "clock_send.html";
+				},
+				edit_img(i){
+					console.log(i);
+						window.location.href = "edit_img.html";
 				}
 			}
 		})
