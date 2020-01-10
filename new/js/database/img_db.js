@@ -1,3 +1,4 @@
+var src_data;
 function openDB() {
 	document.addEventListener("plusready", function() {
 
@@ -10,8 +11,6 @@ function openDB() {
 			name: 'main',
 			success: function(e) {
 				//console.log('closeDatabase success!');
-			
-				//sqliteInfo.databaseIsOpen = false;
 			},
 			fail: function(e) {
 				//console.log('closeDatabase failed: ' + JSON.stringify(e));
@@ -23,8 +22,6 @@ function openDB() {
 			path: '_doc/imgData/imgdata.db',
 			success: function(e) {
 				//console.log('openDatabase success!');
-				//sqliteInfo.databaseName = 'main';
-				//sqliteInfo.databaseIsOpen = true;
 			},
 			fail: function(e) {
 				//console.log('openDatabase failed: ' + JSON.stringify(e));
@@ -36,34 +33,31 @@ function openDB() {
 				sql: 'create table if not exists imgdata(id int primary key not null, data text not null,title text not null)',
 				success: function(e){
 					//console.log('初始化数据库成功');
-					//sqliteInfo.msg = '初始化数据库成功！';
 				},
 				fail: function(e){
 					//console.log('executeSql failed: '+JSON.stringify(e));
-					//sqliteInfo.msg = '初始化数据库失败！';
 				}
 		});
 		
 		plus.sqlite.selectSql({
 				name: 'main',
-				sql: 'select * from imgData',
-				success: function(data){
-					
-					let maxIndex = 0;
-					//console.log('selectSql success: ');
-					//console.log("已存数据:"+JSON.stringify(data));
-					
-					for (var i = 0; i < data.length; i++) {
-						console.log(JSON.parse(data[i].data).length);
+				sql: 'select * from imgData where id = '+window.localStorage.getItem('img_id'),
+				success: function(data){	
+					for (var i = 0; i < data.length; i++) {	
+					    src_data = data[i].data;
+						app.img.id = data[i].id;
+						app.img.data = JSON.parse(src_data);
+						app.img.name = data[i].title;
+						render(app.img.data);
+						app.img_data = JSON.parse(src_data);
+						mui.toast('数据加载成功！共'+app.img.data.length+'字节'); 
 					}
-					
-					window.localStorage.setItem("dataMaxIndex",maxIndex+1);
-					//console.log("图片最后一位索引："+window.localStorage.getItem('dataMaxIndex'));
-					//sqliteInfo.database.data = data;
+					if(data.length==0){
+						mui.toast('没有找到该数据！'); 
+					}
 				},
 				fail: function(e){
-					//console.log('selectSql failed: '+JSON.stringify(e));
-					//sqliteInfo.msg = '加载数据失败 ： '+JSON.stringify(e);
+					mui.toast('数据加载失败'); 
 				}
 		});
 		
@@ -73,7 +67,7 @@ function openDB() {
 function add(img){
 	plus.sqlite.executeSql({
 			name: 'main',
-			sql: "  insert into imgData values("+img.id+",' "+JSON.stringify(img.data)+" ' , '"+img.name+" ' )",
+			sql: "  insert into imgData values("+img.id+",'"+JSON.stringify(img.data)+"' , '"+img.name+" ' )",
 			success: function(e){
 				//this.result = '执行命令成功!';
 				console.log('执行成功');	

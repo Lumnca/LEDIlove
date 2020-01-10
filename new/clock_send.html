@@ -21,7 +21,7 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body style="background: #555555;">
 		<div id="app">
 			<mu-appbar style="width: 100%;padding-top: 1.2rem;" color="primary">
 				<mu-row gutter>
@@ -62,13 +62,52 @@
 					</mu-col>
 				</mu-row>
 			</mu-appbar>
+			<div style="margin-top: 1rem;">
+				<mu-tabs :value.sync="active" :full-width="true" indicator-color="#FFD700" style="height: 25px;">
+					<mu-tab>数字时钟</mu-tab>
+					<mu-tab>内置图库</mu-tab>
+					<mu-tab>时钟设置</mu-tab>
+				</mu-tabs>
+				<div v-if="active === 0">
+					<mu-row gutter>
+						<mu-col span="6">
+						<div style="margin: 8px 10px;padding: 4px;" >
+							<canvas id="canvas" width="160" height="160"></canvas>
+						</div>
+						</mu-col>
+						<mu-col span="6" > 
+							<div style="margin: 8px 10px;">
+								<mu-flex class="select-control-row">
+									<mu-checkbox v-model="show" label="预览" @click="set_showdz()"></mu-checkbox>
+								</mu-flex>
+							</div>
+							<div style="margin: 8px 10px;">
+								<mu-flex class="select-control-row">
+									<mu-checkbox v-model="time" label="刷新" @click="update_time()"></mu-checkbox>
+								</mu-flex>
+							</div>
+						</mu-col>
+					</mu-row>
+					
+					
+				</div>
+				<div v-if="active === 1">
+					1
+				</div>
+				<div v-if="active === 2">
+					2
+				</div>
+			</div>
 		</div>
 	</body>
+	<script src="js/img/number.js"></script>
 	<script>
 		var app = new Vue({
 			el: "#app",
 			data: {
-				
+				active : 0,
+				show : true,
+				time : false
 			},
 			methods:{
 				back(){
@@ -79,8 +118,47 @@
 				},
 				back_img(){
 					window.location.href = "img_send.html";
+				},
+				update_time(){
+					set_date(clock_dz,number,CurentTime());
+					renderDigit(clock_dz);
+					this.time = false;
 				}
 			}
-		})
+		});
+		
+		var WINDOW_WIDTH = 160;
+		var WINDOW_HEIGHT= 160;
+		
+		var r = 2.1;
+		var m = 4.6;
+		
+		set_date(clock_dz,number,CurentTime());
+		//ctx.clearRect(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
+		 renderDigit(clock_dz);
+		
+		//填充点阵
+		function renderDigit(data){
+			var canvas = document.getElementById('canvas');
+			var ctx=canvas.getContext('2d');
+			ctx.clearRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
+			for (var i = 0; i < 32; i++) {
+				for (var j = 0; j < 32; j++) {
+					if (data[i * 32 + j] == 1) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = 'yellow'; //填充颜色
+						ctx.fill();
+					} 
+					else{
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = 'black'; //填充颜色
+						ctx.fill();
+					} 
+				}
+			}
+		}
+		
 	</script>
 </html>
