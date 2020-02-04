@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<script src="https://unpkg.com/element-ui@2.12.0/lib/index.js"></script>
+		<script src="js/mui.js"></script>
+		<script src="js/bluetooth/BluetoothTool.js"></script>
+		<script src="js/log/log.js"></script>
+		<style>
+			@import url("https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css");
+
+			.material-icons:active {
+				color: red;
+			}
+
+			.cols {
+				border: #F0F0F0 solid 1px;
+				border-radius: 4px;
+				padding: 4px;
+			}
+
+			.rows {
+				margin: 4px 4px;
+
+			}
+
+			.edit:active {
+				color: red;
+			}
+		</style>
+	</head>
+	<body style="background: #555555;">
+		<div id="app">
+			<mu-appbar style="width: 100%;padding-top: 1.2rem;" color="primary">
+				<mu-row gutter>
+					<mu-col span="3">
+						<div style="font-size: 16px;height: 20px;">
+							<mu-menu slot="left">
+								图片
+							</mu-menu>
+						</div>
+					</mu-col>
+					<mu-col span="6">
+
+					</mu-col>
+					<mu-col span="3">
+						<span @click="back()">
+							<i class="material-icons">
+								reply
+							</i>
+						</span>
+						<span>&nbsp;</span>
+						<span>
+							<i class="material-icons">
+								settings_applications
+							</i>
+						</span>
+					</mu-col>
+				</mu-row>
+			</mu-appbar>
+			<div style="margin-top: 1rem;">
+
+
+				<div style="margin: 8px;">
+					<canvas id="canvas" width="340" height="340"></canvas>
+					<mu-flex justify-content="center" align-items="center">
+										<mu-button full-width color="primary" @click="send()">保存到本地</mu-button>
+									</mu-flex>
+				</div>
+
+
+			</div>
+		</div>
+	</body>
+	<script>
+		var app = new Vue({
+			el: "#app",
+			data: {
+				active: 0,
+				index: [
+					[1, 2, 3, 4],
+					[5, 6, 7, 8],
+					[9, 10, 11, 12],
+					[13, 14, 15, 16]
+				],
+				send_disabled: false,
+				sendNumber: 0,
+				select: [],
+				img: [],
+				edit: false,
+				size: 70,
+				light: true,
+				baoshan: true,
+				seed: 5,
+				light_value: 4,
+				send_disabled: false,
+				sendload: '上传图像',
+				is_showdz: true
+			},
+			methods: {
+				back() {
+					window.location.href = "req_img.html";
+				},
+				back_main() {
+					window.location.href = "main.html";
+				},
+				back_clock() {
+					window.location.href = "clock_send.html";
+				},
+				edit_img(i) {
+					if (this.img[i - 1] != null && this.img[i - 1] != undefined) {
+						window.localStorage.setItem("img_id", i);
+						window.location.href = "edit_img.html";
+					} else {
+						window.location.href = "req_img.html";
+					}
+
+				},
+				special_effects(type) {
+					console.log(type);
+				},
+				showdz() {
+					if (this.img[this.select[0] - 1] != undefined) {
+
+						renderDigit(this.img[this.select[0] - 1].data);
+					}
+				},
+				send() {
+					var data = this.img[this.select[0] - 1].data;
+					onSendData2();
+					readData();
+
+					setTimeout(function() {
+						if (app.sendNumber < 64) {
+							window.timerS = setInterval(function() {
+								app.send_disabled = true;
+								app.sendNumber += 1;
+								app.sendload = " " + Math.floor(app.sendNumber / 64 * 100) + "%";
+								var dataDuan = new Array(16);
+
+								for (var i = 0; i < 16; i++) {
+									dataDuan[i] = data[(app.sendNumber - 1) * 16 + i];
+								}
+								send16HexData(dataDuan, 16);
+								console.log(JSON.stringify(dataDuan));
+							}, 100);
+						}
+					}, 1000);
+				}
+			},
+			computed: {
+
+				sendTimer: function() {
+					if (this.active != 0) {
+						this.is_showdz = false;
+					}
+					if (this.sendNumber >= 64) {
+						clearInterval(window.timerS);
+						app.sendNumber = 0;
+						app.send_disabled = false;
+						app.sendload = "上传图像";
+						setTimeout(function() {
+							sendDecData([7 * 16 + 7, 0, 6, 1, 2, 1, 1, 1, 4, 0], 10);
+						}, 1000);
+					} else {
+
+					}
+					return this.sendNumber + "R:" + JSON.stringify(this.returnData);
+				}
+			},
+		});
+		openDB();
+
+		function openDB() {
+			document.addEventListener("plusready", function() {
+
+				let isopendb = plus.sqlite.isOpenDatabase({
+					name: 'main',
+					path: '_doc/imgData/demo.db'
+				});
+
+				plus.sqlite.openDatabase({
+					name: 'main',
+					path: '_doc/imgData/imgdata.db',
+					success: function(e) {
+						//console.log('openDatabase success!');
+					},
+					fail: function(e) {
+						//console.log('openDatabase failed: ' + JSON.stringify(e));
+					}
+				});
+
+				plus.sqlite.executeSql({
+					name: 'main',
+					sql: 'create table if not exists imgdata(id int primary key not null, data text not null,title text not null)',
+					success: function(e) {
+						//console.log('初始化数据库成功');
+					},
+					fail: function(e) {
+						//console.log('executeSql failed: '+JSON.stringify(e));
+					}
+				});
+
+				plus.sqlite.selectSql({
+					name: 'main',
+					sql: 'select * from imgData',
+					success: function(data) {
+						for (var i = 0; i < data.length; i++) {
+							app.img.push({
+								id: data[i].id,
+								name: data[i].title,
+								data: JSON.parse(data[i].data)
+							});
+						}
+						if (data.length == 0) {
+							mui.toast('没有数据！');
+						}
+						mui.toast('数据加载成功！共加载' + data.length + '个图像');
+					},
+					fail: function(e) {
+						mui.toast('数据加载失败');
+					}
+				});
+
+				plus.sqlite.closeDatabase({
+					name: 'main',
+					success: function(e) {
+						//console.log('closeDatabase success!');
+					},
+					fail: function(e) {
+						//console.log('closeDatabase failed: ' + JSON.stringify(e));
+					}
+				});
+
+			}, false);
+		}
+	</script>
+	<script>
+		var WINDOW_WIDTH = 340;
+		var WINDOW_HEIGHT = 340;
+
+		var r = 4.6;
+		var m = 10.4;
+
+		//ctx.clearRect(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
+		renderDigit([]);
+
+		//填充点阵
+		function renderDigit(data) {
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+			for (var i = 0; i < 32; i++) {
+				for (var j = 0; j < 32; j++) {
+					if (data[i * 32 + j] == 252) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = 'yellow'; //填充颜色
+						ctx.fill();
+					} else if (data[i * 32 + j] == 224) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = 'red'; //填充颜色
+						ctx.fill();
+					} else if (data[i * 32 + j] == 3) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = 'blue'; //填充颜色
+						ctx.fill();
+					} else if (data[i * 32 + j] == 115) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = '#FF00FF'; //填充颜色
+						ctx.fill();
+					} else if (data[i * 32 + j] == 28) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = '#00FF00'; //填充颜色
+						ctx.fill();
+					} else if (data[i * 32 + j] == 31) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = '#00FFFF'; //填充颜色
+						ctx.fill();
+					} else if (data[i * 32 + j] == 255) {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = 'white'; //填充颜色
+						ctx.fill();
+					} else {
+						ctx.beginPath();
+						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
+						ctx.fillStyle = 'black'; //填充颜色
+						ctx.fill();
+					}
+				}
+			}
+		}
+	</script>
+</html>

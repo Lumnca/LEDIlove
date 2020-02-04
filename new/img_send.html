@@ -96,10 +96,15 @@
 						<mu-col span="3" v-for="j in col" style="padding: 2px;">
 							<div class="cols">
 								<mu-avatar color="teal" :size="size" @click="edit_img(j)" class="edit">
-									{{j}}
+									<span v-if="img[j-1]!=undefined">{{j}}</span>
+									<span v-else>
+										<i class="material-icons">
+										add 
+										</i>
+									</span>
 								</mu-avatar>
 								<div>
-									<mu-checkbox v-model="select" :value="j" :label="img[j-1]!=undefined? img[j-1].name:'添加'"></mu-checkbox>
+									<mu-checkbox :disabled="img[j-1]!=undefined? false : true" v-model="select" :value="j" :label="img[j-1]!=undefined? img[j-1].name:'添加'"></mu-checkbox>
 								</div> 
 
 							</div>
@@ -109,7 +114,7 @@
 				<div v-if="active === 2">
 
 				</div>
-				<div v-if="active === 3">
+				<div v-if="active === 3 ">
 					<mu-container class="button-wrapper">
 						<el-row style="margin-top: 1rem;">
 							<el-button type="warning" size="mini" @click="special_effects(-1)">随机</el-button>
@@ -173,7 +178,7 @@
 													<mu-col span="11" style="padding: 2.5px;">设置速度</mu-col>
 												</mu-row>
 											</div>
-											<mu-slider class="demo-slider" :step="1" v-model="seed" :max="10"></mu-slider>
+											<mu-slider class="demo-slider" :step="1" v-model="light_value" :max="10"></mu-slider>
 										</mu-expansion-panel>
 									</mu-col>
 								</mu-row>
@@ -218,7 +223,7 @@
 									</mu-col>
 								</mu-row>
 							</mu-row>
-							
+					<mu-container>		
 				</div>
 			<div style="margin: 10px 5px;">
 				<mu-flex justify-content="center" align-items="center">
@@ -267,8 +272,14 @@
 					window.location.href = "clock_send.html";
 				},
 				edit_img(i) {
-					window.localStorage.setItem("img_id", i);
-					window.location.href = "edit_img.html";
+					if(this.img[i-1]!=null&&this.img[i-1]!=undefined){
+						window.localStorage.setItem("img_id", i);
+						window.location.href = "edit_img.html";
+					}
+					else{
+							window.location.href = "req_img.html";
+					}
+					
 				},
 				special_effects(type) {
 					console.log(type);

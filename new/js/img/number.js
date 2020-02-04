@@ -150,7 +150,7 @@ var no0 = [
 var number = [no0, no1, no2, no3, no4, no5, no6, no7, no8, no9];
 
 function set_date(n1, a,b) {
-	console.log(JSON.stringify(b));
+	//console.log(JSON.stringify(b));
 	for (var i = 11; i < 19; i++) {
 		for (var j = 0; j < 7; j++) {
 			n1[i * 32 + j] = a[b[0]][(i - 11) * 7 + j];
@@ -176,8 +176,11 @@ function set_date(n1, a,b) {
 	}
 }
 
-function CurentTime() {
-	var now = new Date();
+function CurentTime(now) {
+	if(now==null||now==undefined||now==''){
+		 now = new Date();
+	}
+	
 
 	var clock = [];
 	var hh = now.getHours(); 

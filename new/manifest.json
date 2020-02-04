@@ -34,21 +34,6 @@
         "Maps" : {
             "description" : "地图"
         },
-        "OAuth" : {
-            "description" : "登录授权"
-        },
-        "Payment" : {
-            "description" : "支付"
-        },
-        "Push" : {
-            "description" : "消息推送"
-        },
-        "Share" : {
-            "description" : "社交分享"
-        },
-        "Speech" : {
-            "description" : "语音识别"
-        },
         "SQLite" : {
             "description" : "数据库"
         },
@@ -60,7 +45,8 @@
         },
         "LivePusher" : {
             "description" : "直播推流"
-        }
+        },
+        "Bluetooth" : {}
     },
     "plus" : {
         "splashscreen" : {
@@ -214,91 +200,13 @@
             },
             // 不配置Splash图片则显示应用图标和应用名称
             "plugins" : {
-                "statics" : {
-                    "umeng" : {
-                        //配置应用使用友盟统计，参考http://ask.dcloud.net.cn/article/74 
-                        "appkey_ios" : "", //iOS平台友盟统计appkey 
-                        "channelid_ios" : "", //iOS平台友盟统计发行渠道 
-                        "appkey_android" : "", //Android平台友盟统计发行渠道 
-                        "channelid_android" : "", //Android平台友盟统计发行渠道 
-                        "description" : "友盟统计"
-                    }
-                },
-                "maps" : {
-                    "baidu" : {
-                        //配置应用使用百度地图，参考http://ask.dcloud.net.cn/article/29 
-                        "appkey_ios" : "", //iOS平台百度地图appkey 
-                        "appkey_android" : "", //Android平台百度地图appkey 
-                        "description" : "百度地图"
-                    }
-                },
-                "push" : {
-                    "igexin" : {
-                        //配置应用使用个推推送，参考http://ask.dcloud.net.cn/article/92 
-                        "appid" : "", //个推推送平台应用appid 
-                        "appkey" : "", //个推推送平台应用appkey 
-                        "appsecret" : "", //个推推送平台应用appsecret 
-                        "description" : "个推推送"
-                    }
-                },
-                "share" : {
-                    //配置应用使用分享功能，参考http://ask.dcloud.net.cn/article/27 
-                    "sina" : {
-                        //新浪微博分享SDK配置 
-                        "appkey" : "", //新浪微博平台应用appkey 
-                        "appsecret" : "", //新浪微博平台应用appsecret 
-                        "redirect_uri" : "", //新浪微博平台应用分享回调地址 
-                        "description" : "新浪微博分享"
-                    },
-                    "qq" : {
-                        //QQ分享SDK配置
-                        "appid" : "", //腾讯QQ开放平台申请应用的AppID值 
-                        "description" : "QQ分享"
-                    },
-                    "weixin" : {
-                        //微信分享SDK配置
-                        "appid" : "", //微信开放平台申请应用的AppID值 
-                        "appsecret" : "", //微信开放平台申请应用的AppSecret值 
-                        "description" : "微信分享"
-                    }
-                },
-                "payment" : {
-                    //配置应用使用支付功能，参考http://ask.dcloud.net.cn/article/71 
-                    "alipay" : {
-                        //支付宝配置 
-                        "scheme" : "helloh5test", //ios平台在支付宝应用支付完成后返回当前应用使用的url scheme 
-                        "description" : "支付宝支付"
-                    },
-                    "weixin" : {
-                        //微信支付SDK配置
-                        "appid" : "", //微信开放平台申请应用的AppID值 
-                        "description" : "微信支付"
-                    }
-                },
-                "oauth" : {
-                    //配置应用使用登录功能，参考http://ask.dcloud.net.cn/article/192 
-                    "weixin" : {
-                        //微信登录SDK配置 
-                        "appid" : "", //微信开放平台申请应用的AppID值 
-                        "appsecret" : "", //微信开放平台申请应用的AppSecret值 
-                        "description" : "微信登录"
-                    },
-                    "qq" : {
-                        //QQ登录SDK配置 
-                        "appid" : "", //腾讯QQ开放平台申请应用的AppID值 
-                        "description" : "QQ登录"
-                    },
-                    "sina" : {
-                        //新浪微博登录SDK配置 
-                        "appkey" : "", //新浪微博平台应用appkey 
-                        "appsecret" : "", //新浪微博平台应用appsecret 
-                        "redirect_uri" : "", //新浪微博平台应用授权回调页地址 
-                        "description" : "新浪微博登录"
-                    }
-                },
-                "speech" : {
-                    "ifly" : {}
-                }
+                "statics" : {},
+                "maps" : {},
+                "push" : {},
+                "share" : {},
+                "payment" : {},
+                "oauth" : {},
+                "speech" : {}
             }
         }
     },

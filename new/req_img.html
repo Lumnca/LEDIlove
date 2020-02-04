@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<script type="text/javascript" src="js/update.js"></script>
+		<!--Muse-UI框架引入-->
+		<link rel="stylesheet" href="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.css" />
+		<link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/muse-ui@3.0.2/dist/muse-ui.js"></script>
+		<script src="https://unpkg.com/element-ui@2.12.0/lib/index.js"></script>
+		<script src="js/mui.js"></script>
+		<style>
+			@import url("https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css");
+			.material-icons:active{
+				color: red;
+			}
+			.cols{
+				border: #F0F0F0 solid 1px;
+				border-radius: 4px;
+				padding: 4px;
+			}
+			.rows{
+				margin: 4px 4px;
+				
+			}
+			.edit:active{
+				color: red;
+			}
+		</style>
+	</head>
+	<body style="background: #555555;">
+		<div id="app">
+			<mu-appbar style="width: 100%;padding-top: 1.2rem;" color="primary">
+				<mu-row gutter>
+					<mu-col span="3">
+						<div style="font-size: 16px;height: 20px;">
+							<span>图片库</span>
+						</div>
+					</mu-col>
+					<mu-col span="6">
+
+					</mu-col>
+					<mu-col span="3">
+						<span @click="back()">
+							<i class="material-icons">
+								reply
+							</i>
+						</span>
+						<span>&nbsp;</span>
+						<span>
+							<i class="material-icons">
+								settings_applications
+							</i>
+						</span>
+					</mu-col>
+				</mu-row>
+			</mu-appbar>
+			<mu-container>
+			<mu-card style="width: 100%; max-width: 375px;margin-top: 8px;">
+
+			
+			
+			<mu-paper :z-depth="1" class="demo-loadmore-wrap" style="background: #555555;">
+			  <mu-container ref="container" class="demo-loadmore-content">
+			    <mu-load-more @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load">
+			      <mu-list>
+			        <template v-for="i in num">
+			          <mu-card style="width: 100%; max-width: 375px;margin-top: 8px;">
+			            <mu-card-header title="Lumnca" sub-title="12">
+			              <mu-avatar slot="avatar">
+			                <img src="img/ui.png">
+			              </mu-avatar>
+			            </mu-card-header>
+			            <mu-card-media title="U型" sub-title="发布于 2019/12/12">
+			              <img src="img/mp.png">
+			            </mu-card-media>
+			          	
+			            <mu-card-actions>
+			              <mu-button flat @click="show()">查看</mu-button>
+			            </mu-card-actions>
+			          </mu-card>
+			          </mu-container>
+			        </template>
+			      </mu-list>
+			    </mu-load-more>
+			  </mu-container>
+			</mu-paper>
+			
+		</div>
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper"></div>
+	</body>
+	<script>
+		var app = new Vue({
+			el: "#app",
+			data: {
+				active: 0,
+				index : [
+					[1, 2, 3, 4],
+					[5, 6, 7, 8],
+					[9, 10, 11, 12],
+					[13,14,15,16]
+				],
+				send_disabled: false,
+				sendNumber: 0,
+				select : [],
+				img : [],
+				edit: false,
+				size: 70,
+				light: true,
+				baoshan: true,
+				seed: 5,
+				light_value: 4,
+				send_disabled : false,
+				sendload: '上传图像',
+				is_showdz : true,
+				num: 2,
+				refreshing: false,
+				loading: false,
+			},
+			methods: {
+				back() {
+					window.location.href = "img_send.html";
+				},
+				show(){
+					window.location.href = "img_show.html";
+				},
+				send(){
+					var data = this.img[this.select[0]-1].data;
+					onSendData2();
+					readData();
+					
+					setTimeout(function(){
+						if(app.sendNumber<64){
+							window.timerS = setInterval(function(){
+								app.send_disabled = true;
+								app.sendNumber += 1;
+								app.sendload = " "+Math.floor(app.sendNumber/64*100)+"%";
+								var dataDuan = new Array(16);
+								
+								for (var i = 0; i < 16; i++) {
+									dataDuan[i] = data[(app.sendNumber-1)*16+i];
+								}
+								send16HexData(dataDuan,16);
+								console.log(JSON.stringify(dataDuan));
+							},100);						
+						}	
+					},1000);
+				},
+				 refresh() {
+				      this.refreshing = true;
+				      this.$refs.container.scrollTop = 0;
+				      setTimeout(() => {
+				        this.refreshing = false;
+				        this.text = this.text === 'List' ? 'Menu' : 'List';
+				        this.num = 10;
+				      }, 2000)
+				    },
+				    load () {
+				      this.loading = true;
+				      setTimeout(() => {
+				        this.loading = false;
+				        this.num += 2;
+				      }, 2000)
+				    }
+				  
+			},
+			computed: {
+	
+				sendTimer: function() {
+					if(this.active!=0){
+						this.is_showdz = false;
+					}
+					if (this.sendNumber >= 64) {
+						clearInterval(window.timerS);
+						app.sendNumber = 0;
+						app.send_disabled = false;
+						app.sendload = "上传图像";
+						setTimeout(function() {
+							sendDecData([7 * 16 + 7, 0, 6, 1, 2, 1, 1, 1, 4, 0], 10);
+						}, 1000);
+					} else {
+			
+					}
+					return this.sendNumber + "R:" + JSON.stringify(this.returnData);
+				}
+			},
+		});
+		mui.init({
+			pullRefresh: {
+				container: '#pullrefresh',
+				down: {
+					style: 'circle',
+					callback: pulldownRefresh
+				}
+			}
+		});
+		
+		
+		/**
+		 * 下拉刷新具体业务实现
+		 */
+		function pulldownRefresh() {
+			mui.toast("刷新成功");
+			setTimeout(function() {
+		
+				mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+		
+			}, 1500);
+			setTimeout(function() {
+				window.location.reload();
+			}, 500)
+		
+		}
+	</script>
+</html>

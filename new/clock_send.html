@@ -16,9 +16,11 @@
 		<script src="js/bluetooth/BluetoothTool.js"></script>
 		<script src="js/log/log.js"></script>
 		<style>
+			@import url("https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css");
 			.material-icons:active{
 				color: red;
 			}
+		
 		</style>
 	</head>
 	<body style="background: #555555;">
@@ -26,26 +28,26 @@
 			<mu-appbar style="width: 100%;padding-top: 1.2rem;" color="primary">
 				<mu-row gutter>
 					<mu-col span="3">
-						<div  style="font-size: 16px;height: 20px;">
+						<div style="font-size: 16px;height: 20px;">
 							<mu-menu slot="left">
-							   <mu-button flat><span>时钟发送</span></mu-button>
-							   <mu-list slot="content">
-							     <mu-list-item button @click="back_main()">
-							       <mu-list-item-content>
-							         <mu-list-item-title>简易发送</mu-list-item-title>
-							       </mu-list-item-content>
-							     </mu-list-item>
-							     <mu-list-item button @click="back_img()">
-							       <mu-list-item-content>
-							         <mu-list-item-title>图像发送</mu-list-item-title>
-							       </mu-list-item-content>
-							     </mu-list-item>
-							   </mu-list>
-							 </mu-menu>
+								<mu-button flat><span>时钟发送</span></mu-button>
+								<mu-list slot="content">
+									<mu-list-item button @click="back_main()">
+										<mu-list-item-content>
+											<mu-list-item-title>简易发送</mu-list-item-title>
+										</mu-list-item-content>
+									</mu-list-item>
+									<mu-list-item button @click="back_img()">
+										<mu-list-item-content>
+											<mu-list-item-title>图像发送</mu-list-item-title>
+										</mu-list-item-content>
+									</mu-list-item>
+								</mu-list>
+							</mu-menu>
 						</div>
 					</mu-col>
 					<mu-col span="6">
-						
+
 					</mu-col>
 					<mu-col span="3">
 						<span @click="back()">
@@ -58,24 +60,23 @@
 							<i class="material-icons">
 								settings_applications
 							</i>
-						</span>		
+						</span>
 					</mu-col>
 				</mu-row>
 			</mu-appbar>
 			<div style="margin-top: 1rem;">
 				<mu-tabs :value.sync="active" :full-width="true" indicator-color="#FFD700" style="height: 25px;">
 					<mu-tab>数字时钟</mu-tab>
-					<mu-tab>内置图库</mu-tab>
 					<mu-tab>时钟设置</mu-tab>
 				</mu-tabs>
 				<div v-if="active === 0">
 					<mu-row gutter>
 						<mu-col span="6">
-						<div style="margin: 8px 10px;padding: 4px;" >
-							<canvas id="canvas" width="160" height="160"></canvas>
-						</div>
+							<div style="margin: 8px 10px;padding: 4px;">
+								<canvas id="canvas" width="160" height="160"></canvas>
+							</div>
 						</mu-col>
-						<mu-col span="6" > 
+						<mu-col span="6">
 							<div style="margin: 8px 10px;">
 								<mu-flex class="select-control-row">
 									<mu-checkbox v-model="show" label="预览" @click="set_showdz()"></mu-checkbox>
@@ -88,14 +89,107 @@
 							</div>
 						</mu-col>
 					</mu-row>
-					
-					
+
+					<mu-container class="button-wrapper">
+						<el-row style="margin-top: 1rem;">
+							<el-button type="warning" size="mini" @click="special_effects(-1)">随机</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(4)">左移</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(5)">右移</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(2)">上移</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(3)">下移</el-button>
+						</el-row>
+						<el-row style="margin-top: 1rem;">
+							<el-button type="warning" size="mini" @click="special_effects(1)">固定</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(6)">闪烁</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(-1)">淡出</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(7)">溶解</el-button>
+							<el-button type="warning" size="mini" @click="special_effects(8)">旋转</el-button>
+						</el-row>
+
+						<mu-container>
+							<div style="margin: 10px 5px;">
+								<mu-flex justify-content="center" align-items="center">
+									<mu-button full-width color="primary" @click="send()" :disabled="send_disabled">{{sendload}}</mu-button>
+								</mu-flex>
+							</div>
 				</div>
 				<div v-if="active === 1">
-					1
+					<mu-container>
+						<mu-row style="margin-top: 6px;">
+							<mu-row>
+								<mu-col span="12">
+									<mu-expansion-panel>
+										<div slot="header">
+											<mu-row>
+												<mu-col span="1">
+													<i class="material-icons">
+														label_important
+													</i>
+												</mu-col>
+												<mu-col span="11" style="padding: 2.5px;">网络校时</mu-col>
+											</mu-row>
+
+										</div>
+										<el-time-picker v-model="set_time" placeholder="任意时间点">
+										</el-time-picker>
+										<mu-button style="margin-top: 10px;" color="primary" @click="">自定义时间</mu-button>
+									</mu-expansion-panel>
+								</mu-col>
+								
+								<mu-col span="12" style="margin-top: 8px;">
+									<mu-expansion-panel>
+										<div slot="header">
+											<mu-row>
+												<mu-col span="1">
+													<i class="material-icons">
+														label_important
+													</i>
+												</mu-col>
+												<mu-col span="8" style="padding: 2.5px;">12h/24h</mu-col>
+												<mu-col span="3" style="padding: 2.5px;">{{form.radio}}</mu-col>
+											</mu-row>
+
+										</div>
+										 <mu-form :model="form" class="mu-demo-form"  label-width="100">
+										    <mu-form-item prop="radio" label="时间格式">
+										      <mu-radio v-model="form.radio" value="12h" label="12小时格式"></mu-radio>
+										      <mu-radio v-model="form.radio" value="24h" label="24小时格式"></mu-radio>
+										    </mu-form-item>
+										  </mu-form>
+									</mu-expansion-panel>
+								</mu-col>
+								
+								
+								
+								<mu-col span="12" style="margin-top: 8px;">
+									<mu-expansion-panel>
+										<div slot="header">
+											<mu-row>
+												<mu-col span="1">
+													<i class="material-icons">
+														label_important
+													</i>
+												</mu-col>
+												<mu-col span="8" style="padding: 2.5px;">时区</mu-col>
+												<mu-col span="3" style="padding: 2.5px;">{{form.select}}</mu-col>
+											</mu-row>
+								
+										</div>
+										 <mu-form :model="form" class="mu-demo-form"  label-width="100">
+										    <mu-form-item prop="select" label="时区城市">
+										      <mu-select v-model="form.select">
+										        <mu-option v-for="option,index in options" :key="option" :label="option" :value="option"></mu-option>
+										      </mu-select>
+										    </mu-form-item>
+										  </mu-form>
+									</mu-expansion-panel>
+								</mu-col>
+							</mu-row>
+						</mu-row>
+					</mu-container>
 				</div>
-				<div v-if="active === 2">
-					2
+				<div style="visibility: hidden;">
+					{{sendTimer}}
 				</div>
 			</div>
 		</div>
@@ -105,43 +199,108 @@
 		var app = new Vue({
 			el: "#app",
 			data: {
-				active : 0,
-				show : true,
-				time : false
+				active: 0,
+				show: true,
+				time: false,
+				time_type: '',
+				set_time: new Date(),
+				send_disabled: false,
+				sendNumber: 0,
+				sendload: '上传图像',
+				is_showdz: true,
+				clock_dz: [],
+				options: [1, 2, 3],
+				form : {
+					select : '北京',
+					radio : '24h'
+				},
+				options:[
+					'北京','伦敦','纽约','东京','香港','莫斯科','巴黎','柏林'
+				]
 			},
-			methods:{
-				back(){
+			methods: {
+				back() {
 					window.location.href = "find_dev.html";
 				},
-				back_main(){
+				back_main() {
 					window.location.href = "main.html";
 				},
-				back_img(){
+				back_img() {
 					window.location.href = "img_send.html";
 				},
-				update_time(){
-					set_date(clock_dz,number,CurentTime());
+				update_time() {
+					set_date(clock_dz, number, CurentTime(this.set_time));
 					renderDigit(clock_dz);
 					this.time = false;
+				},
+				send() {
+					var data = clock_dz;
+
+					for (let i in data) {
+						if (data[i] == 1) {
+							data[i] = 252;
+						}
+					}
+
+
+					onSendData2();
+					readData();
+
+					setTimeout(function() {
+						if (app.sendNumber < 64) {
+							window.timerS = setInterval(function() {
+								app.send_disabled = true;
+								app.sendNumber += 1;
+								app.sendload = " " + Math.floor(app.sendNumber / 64 * 100) + "%";
+								var dataDuan = new Array(16);
+
+								for (var i = 0; i < 16; i++) {
+									dataDuan[i] = data[(app.sendNumber - 1) * 16 + i];
+								}
+								send16HexData(dataDuan, 16);
+								console.log(JSON.stringify(dataDuan));
+							}, 100);
+						}
+					}, 1000);
+				}
+			},
+			computed: {
+
+				sendTimer: function() {
+					if (this.active != 0) {
+						this.is_showdz = false;
+					}
+					if (this.sendNumber >= 64) {
+						clearInterval(window.timerS);
+						app.sendNumber = 0;
+						app.send_disabled = false;
+						app.sendload = "上传图像";
+						setTimeout(function() {
+							sendDecData([7 * 16 + 7, 0, 6, 1, 2, 1, 1, 1, 4, 0], 10);
+						}, 1000);
+					} else {
+
+					}
+					return this.sendNumber + "R:" + JSON.stringify(this.returnData);
 				}
 			}
 		});
-		
+
 		var WINDOW_WIDTH = 160;
-		var WINDOW_HEIGHT= 160;
-		
+		var WINDOW_HEIGHT = 160;
+
 		var r = 2.1;
 		var m = 4.6;
-		
-		set_date(clock_dz,number,CurentTime());
+
+		set_date(clock_dz, number, CurentTime());
 		//ctx.clearRect(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
-		 renderDigit(clock_dz);
-		
+		renderDigit(clock_dz);
+		app.clock_dz = clock_dz;
 		//填充点阵
-		function renderDigit(data){
+		function renderDigit(data) {
 			var canvas = document.getElementById('canvas');
-			var ctx=canvas.getContext('2d');
-			ctx.clearRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
+			var ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 			for (var i = 0; i < 32; i++) {
 				for (var j = 0; j < 32; j++) {
 					if (data[i * 32 + j] == 1) {
@@ -149,16 +308,14 @@
 						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
 						ctx.fillStyle = 'yellow'; //填充颜色
 						ctx.fill();
-					} 
-					else{
+					} else {
 						ctx.beginPath();
 						ctx.arc((j + 0.5) * m, m * (i + 0.5), r, 0, 2 * Math.PI, true); //显示像素点的位置与大小 半径3 
 						ctx.fillStyle = 'black'; //填充颜色
 						ctx.fill();
-					} 
+					}
 				}
 			}
 		}
-		
 	</script>
 </html>

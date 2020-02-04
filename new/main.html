@@ -149,47 +149,47 @@
 						</div>
 						<div>
 							<div class="button-wrapper">
-								<mu-button icon color="primary">
+								<mu-button icon color="primary" @click="insertImg(2)">
 									<mu-icon value="grade"></mu-icon>
 								</mu-button>
-								<mu-button icon color="secondary">
+								<mu-button icon color="secondary" @click="insertImg(2)">
 									<mu-icon value="android"></mu-icon>
 								</mu-button>
 								<mu-button icon>
-									<i class="material-icons">
+									<i class="material-icons" @click="insertImg(2)">
 										room
 									</i>
 								</mu-button>
-								<mu-button icon color="red">
+								<mu-button icon color="red" @click="insertImg(2)">
 									<mu-icon value="thumb_up"></mu-icon>
 								</mu-button>
-								<mu-button icon color="red">
+								<mu-button icon color="red" @click="insertImg(2)">
 									<i class="material-icons">
 										mail
 									</i>
 								</mu-button>
-								<mu-button icon color="red">
+								<mu-button icon color="red" @click="insertImg(2)">
 									<i class="material-icons">
 										call
 									</i>
 								</mu-button>
 							</div>
 							<div class="button-wrapper">
-								<mu-button icon color="primary">
+								<mu-button icon color="primary" @click="insertImg(2)">
 									<mu-icon value="grade"></mu-icon>
 								</mu-button>
-								<mu-button icon color="secondary">
+								<mu-button icon color="secondary" @click="insertImg(2)">
 									<mu-icon value="android"></mu-icon>
 								</mu-button>
-								<mu-button icon>
+								<mu-button icon @click="insertImg(2)">
 									<i class="material-icons">
 										room
 									</i>
 								</mu-button>
-								<mu-button icon color="red">
+								<mu-button icon color="red" @click="insertImg(2)">
 									<mu-icon value="thumb_up"></mu-icon>
 								</mu-button>
-								<mu-button icon color="red">
+								<mu-button icon color="red" @click="insertImg(2)">
 									<i class="material-icons">
 										mail
 									</i>
@@ -603,14 +603,18 @@
 						//console.log("未知错误"+this.return_data);
 					}
 					if (this.device.isabled) {
+						
 						if (this.send_disabled) {
 							return Math.floor(this.send_data.send_index / this.send_data.send_length * 100) + "%";
 						} else {
 							return "确认并发送";
 						}
 					} else {
-						this.send_disabled = true;
-						return "无服务";
+						
+						return ("无连接服务"+this.send_disabled).substring(0,5);
+					}
+					if(this.device.id!=''){
+						this.send_disabled = false;
 					}
 				}
 			},
